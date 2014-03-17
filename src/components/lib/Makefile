@@ -38,6 +38,7 @@ clean:
 	@rm -f a.out *.o *.a *.d *~
 
 distclean:
+	make -C sqlite3 clean
 	make -C dietlibc-0.29 clean
 	make -C lwip/cos clean
 	make -C lua/cos clean
@@ -49,6 +50,7 @@ distclean:
 	make -C libccv clean
 
 init: clean distclean all
+	make -C sqlite3
 	make -C dietlibc-0.29
 	make -C lwip/cos
 	make -C lua/cos
