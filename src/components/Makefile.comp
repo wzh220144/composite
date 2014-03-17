@@ -6,6 +6,8 @@ LIBDIR=$(CDIR)/lib/
 MANDITORY_LIB=cos_manditory.o
 CINC=-I./ -I$(CDIR)/include/ -I$(SHAREDINC) -I$(CDIR)/lib/ck/include
 
+SQLITEOBJ=$(LIBDIR)/libsqlite3.a
+
 DIETDIR=$(CDIR)/lib/dietlibc-0.29
 DIETBIN=$(DIETDIR)/bin-i386/diet
 DIETCC=$(DIETBIN) $(CC)
