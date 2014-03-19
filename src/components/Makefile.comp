@@ -14,6 +14,7 @@ DIETDIR=$(CDIR)/lib/dietlibc-0.29
 DIETBIN=$(DIETDIR)/bin-i386/diet
 DIETCC=$(DIETBIN) $(CC)
 DIETINC=-I$(DIETDIR)/include
+#DIETOBJ=-i$(DIETDIR)/bin-i386/*.a
 
 LWIPBASE=$(CDIR)/lib/lwip
 LWIPDIR=$(LWIPBASE)/lwip-1.3.0

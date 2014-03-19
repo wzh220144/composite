@@ -164,7 +164,7 @@ lock_old_archive_extraction=no
 LTCC="gcc"
 
 # LTCC compiler flags.
-LTCFLAGS="-g -O2"
+LTCFLAGS="-I../dietlibc-0.29/include -L../dietlibc-0.29/bin-i386 -g -O2 -DSQLITE_OMIT_DEPRECATED -DSQLITE_OMIT_LOCALTIME -DSQLITE_THREADSAFE=0 -DSQLITE_OMIT_LOAD_EXTENSION -fno-stack-protector -DHAVE_POSIX_FALLOCATE=0 -DHAVE_UTIME=0"
 
 # Take the output of nm and produce a listing of raw symbols and C names.
 global_symbol_pipe="sed -n -e 's/^.*[	 ]\\([ABCDGIRSTW][ABCDGIRSTW]*\\)[	 ][	 ]*\\([_A-Za-z][_A-Za-z0-9]*\\)\$/\\1 \\2 \\2/p' | sed '/ __gnu_lto/d'"

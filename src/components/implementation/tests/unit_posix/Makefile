@@ -12,4 +12,6 @@ first:
 	@cp $(CCVOBJ) .
 	$(info |     [CP]   copying libsqlite3.a from ./components/lib)
 	@cp $(SQLITEOBJ) .
+	#$(info |     [CP]   copying libpthread.a from ./components/lib)
+	#@cp $(DIETDIR)/bin-i386/libpthread.a .
 include ../../Makefile.subsubdir

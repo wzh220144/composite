@@ -161,7 +161,7 @@ AWK = gawk
 BUILD_CFLAGS = 
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2
+CFLAGS = -I../dietlibc-0.29/include -L../dietlibc-0.29/bin-i386 -g -O2 -DSQLITE_OMIT_DEPRECATED -DSQLITE_OMIT_LOCALTIME -DSQLITE_THREADSAFE=0 -DSQLITE_OMIT_LOAD_EXTENSION -fno-stack-protector -DHAVE_POSIX_FALLOCATE=0 -DHAVE_UTIME=0
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
@@ -186,7 +186,7 @@ INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LD = /usr/bin/ld
 LDFLAGS = 
 LIBOBJS = 
-LIBS = -ldl -lpthread 
+LIBS = -ldl 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
 LN_S = ln -s
