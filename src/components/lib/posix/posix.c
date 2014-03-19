@@ -32,6 +32,7 @@ libc_syscall_override(cos_syscall_t fn, int syscall_num)
 int
 cos_open(const char *pathname, int flags, int mode)
 {
+	printf("%s\n", pathname);
         /*mode param is only for O_CREAT in flags*/
         td_t td;
         long evt;

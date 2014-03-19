@@ -10,6 +10,6 @@ cos_init(void *args)
 /* use posix functions or system calls ?*/ 
 	sqlite3 *db;
 	fprintf(stdout, "Fuck!!!\n");
-	int rc = sqlite3_open(":memory", &db);	
+	int rc = sqlite3_open("test.db", &db);	
         return;
 }

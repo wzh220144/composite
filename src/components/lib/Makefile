@@ -50,8 +50,8 @@ distclean:
 	make -C libccv clean
 
 init: clean distclean all
-	make -C sqlite3
 	make -C dietlibc-0.29
+	make -C sqlite3
 	make -C lwip/cos
 	make -C lua/cos
 # keep the following commands in one line. Same as above.
