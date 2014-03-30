@@ -32,12 +32,15 @@
 #include <time.h>
 #include <timed_blk.h>
 #include <evt.h>
+#include <stdlib.h>
 
-//#define VERBOSE 1
+#define VERBOSE 1
 #ifdef VERBOSE
-#define printv(fmt,...) printc(fmt, ##__VA_ARGS)
+#define printv(fmt,...) printc(fmt, ##__VA_ARGS__)
+#define prints(fmt) printc(fmt)
 #else
 #define printv(fmt,...)
+#define prints(fmt)
 #endif
 
 /*
@@ -59,7 +62,7 @@
 typedef struct ComFile ComFile;
 struct ComFile {
 	sqlite3_file base;	/* Base class. Must be first. */
-	spdid_t pid;		/* thread id */
+	spdid_t pid;		/* spd id */
 	td_t fd;		/* Usually it is file descriptor, but in 
 				composite, it is torrent id, which is like 
 				socket id*/
@@ -78,19 +81,20 @@ static int comDirectWrite(
   int iAmt,                       /* Size of data to write in bytes */
   sqlite_int64 iOfst              /* File offset to write to */
 ){
-
+	prints("comDirectWrite\n");
 	char bfst[21];		/* Return the string of iOfst */
 	int rfst;		/* Return value from twmeta() */
-	size_t rwrite;		/* Return value from twrite_pack() */
+	int rwrite;		/* Return value from twrite_pack() */
+	char flags[10]="offset";
 
-	sprintf(bfst, "%d", iOfst);	/* transfor iOfst to char[] */
+	sprintf(bfst, "%lld", iOfst);	/* transfor iOfst to char[] */
 
-	rfst = twmeta(p->fd, "offset", strlen("offset"), bfst, strlen(bfst));
+	rfst = twmeta(cos_spd_id(), p->fd, flags, strlen(flags), bfst, strlen(bfst));
 	if( rfst == -1 ){
 		return SQLITE_IOERR_WRITE;
 	}
 
-	rwrite = twrite_pack(p->pid, p->fd, zBuf, iAmt);
+	rwrite = twrite_pack(cos_spd_id(), p->fd, (char *)zBuf, iAmt);	//cos_spd_id() might be changed to p->pid
 	if( rwrite == -1 ){
 		return SQLITE_IOERR_WRITE;
 	}
@@ -104,9 +108,13 @@ static int comDirectWrite(
 ** a journal file) or if the buffer is currently empty.
 */
 static int comFlushBuffer(ComFile *p){
+	prints("comFlushBuffer\n");
 	int rc = SQLITE_OK;
 	if( p->nBuffer ){
+		prints("Hi\n");
 		rc = comDirectWrite(p, p->aBuffer, p->nBuffer, p->iBufferOfst);
+		/* update ComFile struct */
+		p->iBufferOfst += p->nBuffer;
  		p->nBuffer = 0;
 	}
 	return rc;
@@ -116,11 +124,15 @@ static int comFlushBuffer(ComFile *p){
 ** Close a file.
 */
 static int comClose(sqlite3_file *pFile){
+	prints("comClose\n");
 	int rc;
 	ComFile *p = (ComFile*)pFile;
 	rc = comFlushBuffer(p);
+	/* update ComFile struct */
 	sqlite3_free(p->aBuffer);
-	trelease(p->pid, p->fd);
+	p->iBufferOfst += 0;
+	p->nBuffer = 0;
+	trelease(cos_spd_id(), p->fd);
 	return rc;
 }
 
@@ -133,14 +145,16 @@ static int comRead(
   int iAmt, 
   sqlite_int64 iOfst
 ){
-
+	prints("comRead\n");
 	char bfst[21];		/* Return the string of iOfst */
 	ComFile *p = (ComFile*)pFile;
 	off_t rfst;                     /* Return value from lseek() */
 	int rread;                      /* Return value from read() */
 	int rc;                         /* Return code from comFlushBuffer() */
+	char flags[10]="offset";	
 
-	sprintf(bfst, "%d", iOfst);	/* transfor iOfst to char[] */
+
+	sprintf(bfst, "%lld", iOfst);	/* transfor iOfst to char[] */
 
 	/* Flush any data in the write buffer to disk in case this operation
 	** is trying to read data the file-region currently cached in the buffer.
@@ -153,20 +167,17 @@ static int comRead(
 		return rc;
 	}
 
-	rfst = twmeta(p->fd, "offset", strlen("offset"), bfst, strlen(bfst));
+	rfst = twmeta(cos_spd_id(), p->fd, flags, strlen(flags), bfst, strlen(bfst));
 	if( rfst == -1 ){
 		return SQLITE_IOERR_READ;
 	}
-	rread = twrite_pack(p->pid, p->fd, zBuf, iAmt);
+	rread = tread_pack(cos_spd_id(), p->fd, (char *)zBuf, iAmt);
 
-	if( rread == -1 ){
+	if( rread != -1 ){
 		return SQLITE_OK;
 	}
-	else if( rread == -1 ){
-		return SQLITE_IOERR_SHORT_READ;
-	}
-
-	return SQLITE_IOERR_READ;
+	else
+		return SQLITE_IOERR_READ;
 }
 
 /*
@@ -178,7 +189,7 @@ static int comWrite(
   int iAmt, 
   sqlite_int64 iOfst
 ){
-
+	prints("comWrite\n");
 	ComFile *p = (ComFile*)pFile;
 
 	if( p->aBuffer ){
@@ -193,17 +204,17 @@ static int comWrite(
 			** following the data already buffered, flush the buffer. Flushing
 			** the buffer is a no-op if it is empty.  
 			*/
-			if( p->nBuffer==SQLITE_DEMOVFS_BUFFERSZ || p->iBufferOfst+p->nBuffer!=i ){
+			if( p->nBuffer==SQLITE_COMVFS_BUFFERSZ || p->iBufferOfst+p->nBuffer!=i ){
 				int rc = comFlushBuffer(p);
 				if( rc!=SQLITE_OK ){
-				return rc;
+					return rc;
 				}
 			}
 			assert( p->nBuffer==0 || p->iBufferOfst+p->nBuffer==i );
 			p->iBufferOfst = i - p->nBuffer;
 
 			/* Copy as much data as possible into the buffer. */
-			nCopy = SQLITE_DEMOVFS_BUFFERSZ - p->nBuffer;
+			nCopy = SQLITE_COMVFS_BUFFERSZ - p->nBuffer;
 			if( nCopy>n ){
 				nCopy = n;
 			}
@@ -214,7 +225,7 @@ static int comWrite(
 			i += nCopy;
 			z += nCopy;
 		}
-  	}
+	}
 	else{
     		return comDirectWrite(p, zBuf, iAmt, iOfst);
 	}
@@ -226,6 +237,7 @@ static int comWrite(
 ** the top of the file).
 */
 static int comTruncate(sqlite3_file *pFile, sqlite_int64 size){
+	prints("comTruncate\n");
 #if 0
   if( ftruncate(((ComFile *)pFile)->fd, size) ) return SQLITE_IOERR_TRUNCATE;
 #endif
@@ -238,6 +250,7 @@ static int comTruncate(sqlite3_file *pFile, sqlite_int64 size){
 ** value will be comFlushBuffer return value
 */
 static int comSync(sqlite3_file *pFile, int flags){
+	prints("comSync\n");
 	ComFile *p = (ComFile*)pFile;
 	int rc;
 
@@ -250,13 +263,15 @@ static int comSync(sqlite3_file *pFile, int flags){
 ** Write the size of the file in bytes to *pSize.
 */
 static int comFileSize(sqlite3_file *pFile, sqlite_int64 *pSize){
+	prints("comFileSize\n");
 	ComFile *p = (ComFile*)pFile;
 	int rc;				/* Return code from tremta() */
 	char stat[30];			/* Return char * from trmeta() */
 	int i;				/* Iterator variable */
+	char flags[10]="flags";
 
 	/* Flush the contents of the buffer to disk. As with the flush in the
-	** demoRead() method, it would be possible to avoid this and save a write
+	** comRead() method, it would be possible to avoid this and save a write
 	** here and there. But in practice this comes up so infrequently it is
 	** not worth the trouble.
 	*/
@@ -265,7 +280,7 @@ static int comFileSize(sqlite3_file *pFile, sqlite_int64 *pSize){
 		return rc;
 	}
 
-	rc = trmeta(p->fd, "flags", strlen("flags"), stat, 30);
+	rc = trmeta(cos_spd_id(), p->fd, flags, strlen(flags), stat, 30);
 	if( rc == -1 )
 		return SQLITE_IOERR_FSTAT;
 	for(i=0; i<30; i++) {
@@ -275,7 +290,7 @@ static int comFileSize(sqlite3_file *pFile, sqlite_int64 *pSize){
 	if(i==30)
 		i--;
 	stat[i]='\0';
-	*pSize = atio(stat);
+	*pSize = atoi(stat);
 	return SQLITE_OK;
 }
 
@@ -286,12 +301,15 @@ static int comFileSize(sqlite3_file *pFile, sqlite_int64 *pSize){
 ** file is found in the file-system it is rolled back.
 */
 static int comLock(sqlite3_file *pFile, int eLock){
+	prints("comLock\n");
 	return SQLITE_OK;
 }
 static int comUnlock(sqlite3_file *pFile, int eLock){
+	prints("comUnlock\n");
 	return SQLITE_OK;
 }
 static int comCheckReservedLock(sqlite3_file *pFile, int *pResOut){
+	prints("comCheckReservedLock\n");
 	*pResOut = 0;
 	return SQLITE_OK;
 }
@@ -300,6 +318,7 @@ static int comCheckReservedLock(sqlite3_file *pFile, int *pResOut){
 ** No xFileControl() verbs are implemented by this VFS.
 */
 static int comFileControl(sqlite3_file *pFile, int op, void *pArg){
+	prints("comFileControl\n");
 	return SQLITE_OK;
 }
 
@@ -309,14 +328,16 @@ static int comFileControl(sqlite3_file *pFile, int op, void *pArg){
 ** access to some extent. But it is also safe to simply return 0.
 */
 static int comSectorSize(sqlite3_file *pFile){
+	prints("comSectorSize\n");
 	return 0;
 }
 static int comDeviceCharacteristics(sqlite3_file *pFile){
+	prints("comDeviceCharacteristics\n");
 	return 0;
 }
 
 /*
-** Open a file handle.
+** Open a file handle. ***File must be absolute rout****.
 */
 static int comOpen(
   sqlite3_vfs *pVfs,              /* VFS */
@@ -325,6 +346,7 @@ static int comOpen(
   int flags,                      /* Input SQLITE_OPEN_XXX flags */
   int *pOutFlags                  /* Output SQLITE_OPEN_XXX flags (or NULL) */
 ){
+	prints("comOpen\n");
   static const sqlite3_io_methods comio = {
     1,                            /* iVersion */
     comClose,                    /* xClose */
@@ -340,7 +362,7 @@ static int comOpen(
     comSectorSize,               /* xSectorSize */
     comDeviceCharacteristics     /* xDeviceCharacteristics */
   };
-	long evt = evt_split(cos_spd_id, 0, 0);
+	long evt = evt_split(cos_spd_id(), 0, 0);
 	ComFile *p = (ComFile*)pFile; /* Populate this structure */
 	int oflags = 0;                 /* flags to pass to tsplit() call */
 	char *aBuf = 0;
@@ -350,7 +372,7 @@ static int comOpen(
 	}
 
 	if( flags&SQLITE_OPEN_MAIN_JOURNAL ){
-		aBuf = (char *)sqlite3_malloc(SQLITE_DEMOVFS_BUFFERSZ);
+		aBuf = (char *)sqlite3_malloc(SQLITE_COMVFS_BUFFERSZ);
 		if( !aBuf ){
 			return SQLITE_NOMEM;
 		}
@@ -367,17 +389,23 @@ static int comOpen(
 	oflags |= TOR_ALL;	//do not support unix file flags, this is composite torrent flags
 
 	memset(p, 0, sizeof(ComFile));
+	p->pid = cos_spd_id();
+	if(zName[0]!='/') {
+		return SQLITE_CANTOPEN;
+	}
 	p->fd = tsplit(cos_spd_id(), td_null, zName, strlen(zName), oflags, evt);
 	if( p->fd == -1 ){
 		sqlite3_free(aBuf);
 		return SQLITE_CANTOPEN;
 	}
 	p->aBuffer = aBuf;
+	p->nBuffer = 0;
+	p->iBufferOfst = 0;
 
 	if( pOutFlags ){
-		*pOutFlags = flags;
+		*pOutFlags = TOR_ALL;
 	}
-	p->base.pMethods = &demoio;
+	p->base.pMethods = &comio;
 	return SQLITE_OK;
 }
 
@@ -387,9 +415,10 @@ static int comOpen(
 ** file has been synced to disk before returning.
 */
 static int comDelete(sqlite3_vfs *pVfs, const char *zPath, int dirSync){
+	prints("comDelete\n");
 	int rc;                         /* Return code */
 
-	rc = tmerge(cos_spd_id, td_null, td_null, zPath, strlen(zPath));
+	rc = tmerge(cos_spd_id(), td_null, td_null, zPath, strlen(zPath));
 	if( (rc == -1) && (errno == ENOENT) )
 		return SQLITE_OK;
 
@@ -441,6 +470,7 @@ static int comAccess(
   int flags, 
   int *pResOut
 ){
+	prints("comAccess\n");
 	int rc;				/* access() return code */
 	int eAccess = F_OK;		/* Second argument to access() */
 
@@ -474,11 +504,10 @@ static int comFullPathname(
   int nPathOut,                   /* Size of output buffer in bytes */
   char *zPathOut                  /* Pointer to output buffer */
 ){
-
+	prints("comFullPathname\n");
 	if( zPath[0]!='/' ){
 		return SQLITE_IOERR;
 	}
-	zDir[MAXPATHNAME] = '\0';
 
 	sqlite3_snprintf(nPathOut, zPathOut, "%s", zPath);
 	zPathOut[nPathOut-1] = '\0';
@@ -499,16 +528,20 @@ static int comFullPathname(
 ** this functionality, so the following functions are no-ops.
 */
 static void *comDlOpen(sqlite3_vfs *pVfs, const char *zPath) {
+	prints("comDlOpen\n");
 	return 0;
 }
 static void comDlError(sqlite3_vfs *pVfs, int nByte, char *zErrMsg){
+	prints("comDlError\n");
 	sqlite3_snprintf(nByte, zErrMsg, "Loadable extensions are not supported");
 	zErrMsg[nByte-1] = '\0';
 }
 static void (*comDlSym(sqlite3_vfs *pVfs, void *pH, const char *z))(void){
+	prints("comDlSym\n");
 	return 0;
 }
-static void cosDlClose(sqlite3_vfs *pVfs, void *pHandle){
+static void comDlClose(sqlite3_vfs *pVfs, void *pHandle){
+	prints("comDlClose\n");
 	return;
 }
 
@@ -517,6 +550,7 @@ static void cosDlClose(sqlite3_vfs *pVfs, void *pHandle){
 ** buffer with pseudo-random data.
 */
 static int comRandomness(sqlite3_vfs *pVfs, int nByte, char *zByte){
+	prints("comRandomness\n");
 	return SQLITE_OK;
 }
 
@@ -525,7 +559,8 @@ static int comRandomness(sqlite3_vfs *pVfs, int nByte, char *zByte){
 ** of microseconds slept for.
 */
 static int comSleep(sqlite3_vfs *pVfs, int nMicro){
-	time_event_block(cos_spd_id(), nMicro);
+	prints("comSleep\n");
+	timed_event_block(cos_spd_id(), nMicro);
 	return nMicro;
 }
 
@@ -541,9 +576,10 @@ static int comSleep(sqlite3_vfs *pVfs, int nMicro){
 ** "year 2038" problem that afflicts systems that store time this way). 
 */
 static int comCurrentTime(sqlite3_vfs *pVfs, double *pTime){
-  time_t t = time(0);
-  *pTime = t/86400.0 + 2440587.5; 
-  return SQLITE_OK;
+	prints("comCurrentTime\n");
+	time_t t = time(0);
+	*pTime = t/86400.0 + 2440587.5; 
+	return SQLITE_OK;
 }
 
 /*
@@ -553,6 +589,7 @@ static int comCurrentTime(sqlite3_vfs *pVfs, double *pTime){
 **   sqlite3_vfs_register(sqlite3_comvfs(), 0);
 */
 sqlite3_vfs *sqlite3_comvfs(void){
+	prints("sqlite3_comvfs\n");
   static sqlite3_vfs comvfs = {
     1,				/* iVersion */
     sizeof(ComFile),		/* szOsFile */
@@ -577,7 +614,7 @@ sqlite3_vfs *sqlite3_comvfs(void){
 
 
 int sqlite3_os_init(void){
-	printf("Fuck!!!\n");
+	prints("sqlite3_os_init\n");
 	sqlite3_vfs_register(sqlite3_comvfs(), 0);
 	return SQLITE_OK; 
 }
@@ -589,10 +626,20 @@ int sqlite3_os_init(void){
 **
 ** This routine is a no-op for composite
 */
-int sqlite3_os_end(void){ 
+int sqlite3_os_end(void){
+	prints("sqlite3_os_end\n");
 	return SQLITE_OK; 
 }
 
 void cos_init(void) {
-	
+	prints("cos_init\n");
+	sqlite3 *db = NULL;
+	int rc = sqlite3_open("/test.db", &db);
+	if(rc) {
+		printc("Cannot open database: %s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return ;
+	}
+	printc("Fuck!!!\nHave opened sqlite file in composite successfully!!!\n");
+	return;
 }
