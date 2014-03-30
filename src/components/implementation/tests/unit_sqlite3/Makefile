@@ -1,9 +1,9 @@
-C_OBJS=posix_test.o
+C_OBJS=os_composite.o
 ASM_OBJS=
-COMPONENT=posix_t.o
+COMPONENT=sqlite3.o
 INTERFACES=
 DEPENDENCIES=sched printc timed_blk torrent cbufp cbuf_c evt mem_mgr_large valloc lock
-IF_LIB=./cos_libccv.a $(DIETDIR)/bin-i386/libm.a #./libsqlite3.a
+IF_LIB=./cos_libccv.a $(DIETDIR)/bin-i386/libm.a ./libsqlite3.a
 OBJLIBS += $(POSIX_LIB)
 
 pre: first all
@@ -12,6 +12,4 @@ first:
 	@cp $(CCVOBJ) .
 	$(info |     [CP]   copying libsqlite3.a from ./components/lib)
 	@cp $(SQLITEOBJ) .
-	#$(info |     [CP]   copying libpthread.a from ./components/lib)
-	#@cp $(DIETDIR)/bin-i386/libpthread.a .
 include ../../Makefile.subsubdir

@@ -1,0 +1,628 @@
+./lib/posix/posix.c:39:        evt = evt_split(cos_spd_id(), 0, 0);
+./lib/posix/posix.c:41:        td = tsplit(cos_spd_id(), td_root, (char *)pathname, strlen(pathname), TOR_ALL, evt);
+./lib/posix/posix.c:54:        trelease(cos_spd_id(), fd - 3); /* return void, use tor_lookup? */
+./lib/posix/posix.c:62:        int ret = tread_pack(cos_spd_id(), fd - 3, buf, count);
+./lib/posix/posix.c:78:                int ret = twrite_pack(cos_spd_id(), td, (char *)buf, count);
+./lib/posix/posix.c:132:                ret = twmeta(cos_spd_id(), td, "offset", strlen("offset"), val, strlen(val));
+./lib/posix/posix.c:137:                trmeta(cos_spd_id(), td, "offset", strlen("offset"), offset_curr, 8);
+./lib/posix/posix.c:139:                ret = twmeta(cos_spd_id(), td, "offset", strlen("offset"), val, strlen(val));
+./lib/posix/posix.c:164:        printc("WARNING: Component %ld calling undifined system call %d\n", cos_spd_id(), syscall_num);
+./include/parlib.h:92:		ret = par_create(cos_spd_id(), 0);
+./include/parlib.h:113:		int ret = par_acap_get_barrier(cos_spd_id(), curr_thd->nest_level);
+./include/parlib.h:170:			curr_cap->acap = par_acap_lookup(cos_spd_id(), i, curr_nest, idx);
+./include/parlib.h:171:			curr_cap->shared_page = par_ring_lookup(cos_spd_id(), i, curr_nest);
+./include/parlib.h:193:				       cos_spd_id(), e - s);
+./include/parlib.h:377:				       cos_spd_id(), e - s);
+./include/parlib.h:404:		ret = par_acap_lookup(cos_spd_id(), n_acap, 0, idx);
+./include/parlib.h:413:		curr_cap->shared_page = par_ring_lookup(cos_spd_id(), n_acap, 0);
+./include/parlib.h:440:			       cos_get_thd_id(), cos_spd_id(), (int)inv.fn);
+./include/cbuf.h:571:			cbuf_c_delete(cos_spd_id(), cbid);
+./include/cbuf.h:576:		cbufp_delete(cos_spd_id(), cbid);
+./include/cos_component.h:268:static inline long cos_spd_id(void)
+./include/cos_synchronization.h:130:	return lock_component_alloc(cos_spd_id());
+./include/cos_synchronization.h:140:	if (__lid_top == NCACHED_LOCK_IDS) lock_component_free(cos_spd_id(), lid);
+./implementation/mem_mgr/hier/mem_man.c:58:			if (!parent_mman_get_page(cos_spd_id(), (vaddr_t)hp, MAPPING_RW)) {
+./implementation/mem_mgr/hier/mem_man.c:107:	if (!parent___mman_alias_page(cos_spd_id(), (vaddr_t)c->local_addr, spd, addr)) {
+./implementation/mem_mgr/hier/mem_man.c:137:		if (!parent___mman_alias_page(cos_spd_id(), (vaddr_t)c->local_addr, d_spd, d_addr)) {
+./implementation/mem_mgr/hier/mem_man.c:162:	parent_mman_revoke_page(cos_spd_id(), (vaddr_t)mc->local_addr, flags);
+./implementation/mem_mgr/naive/mem_man.c:125:	if (cos_vas_cntl(COS_VAS_SPD_EXPAND, cos_spd_id(), 
+./implementation/mem_mgr/naive/mem_man.c:152:	if (cos_mmap_cntl(COS_MMAP_GRANT, MAPPING_RW, cos_spd_id(), (vaddr_t)hp, frame_index(f))) {
+./implementation/mem_mgr/naive/mem_man.c:494:	/* 	idx = cos_mmap_cntl(COS_MMAP_REVOKE, 0, cos_spd_id(), f->c.addr, 0); */
+./implementation/mem_mgr/naive/mem_man.c:538:	if (parent_sched_child_cntl_thd(cos_spd_id())) BUG();
+./implementation/net_if/linux_if_meas/netif.c:340:	acap = cos_async_cap_cntl(COS_ACAP_CREATE, cos_spd_id(), cos_spd_id(), cos_get_thd_id());
+./implementation/net_if/linux_if_meas/netif.c:347:	if (sched_create_net_acap(cos_spd_id(), wildcard_acap_id, port)) return -1;
+./implementation/net_if/linux_if_meas/netif.c:640:	netif_event_create(cos_spd_id());
+./implementation/net_if/linux_if_meas/netif.c:642:		if (netif_event_wait(cos_spd_id(), data)) BUG();;
+./implementation/net_if/linux_if_meas/netif.c:647:	/* if (ip_netif_create(cos_spd_id())) BUG(); */
+./implementation/net_if/linux_if_meas/netif.c:654:	/* 	ip_wait(cos_spd_id(), data); */
+./implementation/net_if/linux_if_meas/netif.c:671:		if (sched_create_thd(cos_spd_id(), sp.v, 0, 0) == 0) BUG();
+./implementation/net_if/linux_if_meas/netif.c:682:		if (sched_create_thd(cos_spd_id(), sp.v, 0, 0) == 0) BUG();
+./implementation/net_if/linux_if/netif.c:338:	acap = cos_async_cap_cntl(COS_ACAP_CREATE, cos_spd_id(), cos_spd_id(), cos_get_thd_id());
+./implementation/net_if/linux_if/netif.c:345:	if (sched_create_net_acap(cos_spd_id(), wildcard_acap_id, port)) return -1;
+./implementation/fd/api/fd_api.c:77:	amnt = evt_grp_mult_wait(cos_spd_id(), data);
+./implementation/fd/api/fd_api.c:206:	ret = net_close(cos_spd_id(), nc);
+./implementation/fd/api/fd_api.c:207:	evt_free_cached(cos_spd_id(), d->evt_id);
+./implementation/fd/api/fd_api.c:221:	return net_recv(cos_spd_id(), nc, buf, sz);
+./implementation/fd/api/fd_api.c:231:	return net_send(cos_spd_id(), nc, buf, sz);
+./implementation/fd/api/fd_api.c:250:	if (0 > (evt_id = evt_create_cached(cos_spd_id()))) {
+./implementation/fd/api/fd_api.c:263:		nc = net_create_tcp_connection(cos_spd_id(), cos_get_thd_id(), evt_id);
+./implementation/fd/api/fd_api.c:268:		nc = net_create_udp_connection(cos_spd_id(), evt_id);
+./implementation/fd/api/fd_api.c:283:	evt_free_cached(cos_spd_id(), d->evt_id);
+./implementation/fd/api/fd_api.c:302:	ret = net_listen(cos_spd_id(), nc, queue);
+./implementation/fd/api/fd_api.c:303://	evt_set_prio(cos_spd_id(), d->evt_id, 1);
+./implementation/fd/api/fd_api.c:323:	ret = net_bind(cos_spd_id(), nc, ip, port);
+./implementation/fd/api/fd_api.c:345:		nc_new = net_accept(cos_spd_id(), nc);
+./implementation/fd/api/fd_api.c:350:			 * if (evt_wait(cos_spd_id(), d->evt_id)) BUG();
+./implementation/fd/api/fd_api.c:360:		net_close(cos_spd_id(), nc_new);
+./implementation/fd/api/fd_api.c:371:	evt_id = evt_create(cos_spd_id());
+./implementation/fd/api/fd_api.c:379:	if (0 < net_accept_data(cos_spd_id(), nc_new, evt_id)) BUG();
+./implementation/fd/api/fd_api.c:395:	content_remove(cos_spd_id(), conn_id);
+./implementation/fd/api/fd_api.c:396:	evt_free_cached(cos_spd_id(), d->evt_id);
+./implementation/fd/api/fd_api.c:414:	return content_read(cos_spd_id(), conn_id, buff, sz);
+./implementation/fd/api/fd_api.c:424:	return content_write(cos_spd_id(), conn_id, buff, sz);
+./implementation/fd/api/fd_api.c:443:	if (0 > (evt_id = evt_create_cached(cos_spd_id()))) {
+./implementation/fd/api/fd_api.c:450:	conn_id = content_split(cos_spd_id(), (long)d->data, evt_id);
+./implementation/fd/api/fd_api.c:461:	evt_free_cached(cos_spd_id(), d_new->evt_id);
+./implementation/fd/api/fd_api.c:483:	if (0 > (evt_id = evt_create_cached(cos_spd_id()))) {
+./implementation/fd/api/fd_api.c:494:	conn_id = content_create(cos_spd_id(), evt_id, data);
+./implementation/fd/api/fd_api.c:501:	evt_free_cached(cos_spd_id(), d->evt_id);
+./implementation/fd/api/fd_api.c:582:	return evt_wait(cos_spd_id(), evt_id);
+./implementation/fd/api/fd_api.c:604:	evt = evt_grp_wait(cos_spd_id());
+./implementation/fd/api/fd_api.c:645:	sched_block(cos_spd_id(), 0);
+./implementation/cbufp/default/cbufp.c:198:	dest = (vaddr_t)valloc_alloc(cos_spd_id(), spdid, size/PAGE_SIZE);
+./implementation/cbufp/default/cbufp.c:203:		    (mman_alias_page(cos_spd_id(), ((vaddr_t)p) + off, spdid, d, MAPPING_RW))) {
+./implementation/cbufp/default/cbufp.c:206:			valloc_free(cos_spd_id(), spdid, (void *)dest, 1);
+./implementation/cbufp/default/cbufp.c:277:		mman_revoke_page(cos_spd_id(), (vaddr_t)ptr + off, 0);
+./implementation/cbufp/default/cbufp.c:290:		valloc_free(cos_spd_id(), m->spdid, (void*)m->addr, cbi->size/PAGE_SIZE);
+./implementation/cbufp/default/cbufp.c:494:	dest       = (vaddr_t)valloc_alloc(cos_spd_id(), spdid, size/PAGE_SIZE);
+./implementation/cbufp/default/cbufp.c:507:		    (mman_alias_page(cos_spd_id(), ((vaddr_t)page)+off, spdid, dest+off, MAPPING_READ))) {
+./implementation/cbufp/default/cbufp.c:509:			valloc_free(cos_spd_id(), spdid, (void *)dest, 1);
+./implementation/exe_synth_hier/exe_shrec/exe_synth_hier.c:82:	/* if (sched_comp_config_initstr(cos_spd_id(), data)) { */
+./implementation/exe_synth_hier/exe_shrec/exe_synth_hier.c:135://	printc("thd %d enter comp %d!\n", cos_get_thd_id(), cos_spd_id());
+./implementation/exe_synth_hier/exe_shrec/exe_synth_hier.c:171://	printc("thd %d left comp %d!\n", cos_get_thd_id(), cos_spd_id());
+./implementation/exe_synth_hier/exe_shrec/exe_synth_hier.c:194:	sched_block(cos_spd_id(), 0);
+./implementation/timed_blk/timed_evt/timed_event.c:161:	spdid_t spdid = cos_spd_id();
+./implementation/timed_blk/timed_evt/timed_event.c:263:	spdid_t spdid = cos_spd_id();
+./implementation/timed_blk/timed_evt/timed_event.c:322:	spdid_t spdid = cos_spd_id();
+./implementation/timed_blk/timed_evt/timed_event.c:392:	spdid_t spdid = cos_spd_id();
+./implementation/timed_blk/timed_evt/timed_event.c:411:	spdid_t spdid = cos_spd_id();
+./implementation/timed_blk/timed_evt/timed_event.c:430:	spdid_t spdid = cos_spd_id();
+./implementation/timed_blk/timed_evt/timed_event.c:450:	spdid_t spdid = cos_spd_id();
+./implementation/timed_blk/timed_evt/timed_event.c:470:	spdid_t spdid = cos_spd_id();
+./implementation/timed_blk/timed_evt/timed_event.c:490:	spdid_t spdid = cos_spd_id();
+./implementation/timed_blk/timed_evt/timed_event.c:522:	spdid_t spdid = cos_spd_id();
+./implementation/timed_blk/timed_evt/timed_event.c:544:	spdid_t spdid = cos_spd_id();
+./implementation/timed_blk/timed_evt/timed_event.c:598:	spdid_t spdid = cos_spd_id();
+./implementation/synth_hier/shrec/synth_hier.c:56:	/* if (sched_comp_config_initstr(cos_spd_id(), data)) { */
+./implementation/synth_hier/shrec/synth_hier.c:110:	sched_block(cos_spd_id(), 0);
+./implementation/async_inv/ainv/async_inv.c:132:	if (evt_trigger(cos_spd_id(), m->evt_id)) BUG();
+./implementation/async_inv/ainv/async_inv.c:370:		sched_block(cos_spd_id(), 0);
+./implementation/async_inv/ainv/async_inv.c:383:	if (evt_trigger(cos_spd_id(), sp->main.evt_id)) BUG();
+./implementation/async_inv/ainv/async_inv.c:431:		sched_wakeup(cos_spd_id(), t);
+./implementation/async_inv/ainv/async_inv.c:532:	if (evt_trigger(cos_spd_id(), m->evt_id)) BUG();
+./implementation/acap_pong/acap_pong/pong.c:13:	       cos_cpuid(), cos_spd_id(), a,b,c,d);
+./implementation/acap_pong/acap_pong/pong.c:27:	sched_block(cos_spd_id(), 0);
+./implementation/acap_pong/acap_pong/pong.c:30:	curr->acap = acap_srv_lookup(cos_spd_id());
+./implementation/acap_pong/acap_pong/pong.c:31:	curr->cli_ncaps = acap_srv_ncaps(cos_spd_id());
+./implementation/acap_pong/acap_pong/pong.c:32:	curr->shared_page = acap_srv_lookup_ring(cos_spd_id());
+./implementation/acap_pong/acap_pong/pong.c:40:		curr->fn_mapping[i] = (vaddr_t)acap_srv_fn_mapping(cos_spd_id(), i);
+./implementation/acap_pong/acap_pong/pong.c:47:	       cos_spd_id(), curr_thd_id, acap);
+./implementation/acap_pong/acap_pong/pong.c:66:				       cos_get_thd_id(), cos_spd_id(), inv.cap);
+./implementation/acap_pong/acap_pong/pong.c:78:	printc("couldn't allocate memory in spd %ld\n", cos_spd_id());
+./implementation/cbuf_c/tmem.h:180:		sched_wakeup(cos_spd_id(), tid);
+./implementation/cbuf_c/tmem.h:183:		sched_wakeup(cos_spd_id(), tid);
+./implementation/cbuf_c/tmem.h:221:		mempool_clear_glb_blked(cos_spd_id());
+./implementation/cbuf_c/tmem.h:289:	DOUT("waking up local threads for spd %ld\n", cos_spd_id());
+./implementation/cbuf_c/tmem.h:309:	DOUT("waking up the first local threads for spd %ld\n", cos_spd_id());
+./implementation/cbuf_c/tmem.h:323:			mempool_clear_glb_blked(cos_spd_id());
+./implementation/cbuf_c/tmem.h:512:	printc("MGR %ld -> allocated: %d,\n", cos_spd_id(), tmems_allocated);
+./implementation/cbuf_c/tmem.c:42:		mempool_put_mem(cos_spd_id(), LOCAL_ADDR(tmi));
+./implementation/cbuf_c/tmem.c:76:		l_addr = mempool_get_mem(cos_spd_id(), 1);
+./implementation/cbuf_c/tmem.c:92:		mempool_tmem_mgr_event_waiting(cos_spd_id());
+./implementation/cbuf_c/tmem.c:107:	spd_id = cos_spd_id();
+./implementation/cbuf_c/tmem.c:124:	spd_id = cos_spd_id();
+./implementation/cbuf_c/tmem.c:145:	sched_block(cos_spd_id(), 0);
+./implementation/cbuf_c/tmem.c:188:			       cos_spd_id(), sti->ss_counter,sti->spdid, cos_get_thd_id(), sti->num_waiting_thds, sti->num_desired, sti->num_allocated);
+./implementation/cbuf_c/tmem.c:207:		DOUT("MGR %ld >>> %d try to depend on %d comp %d i%d\n", cos_spd_id(), cos_get_thd_id(), dep_thd, sti->spdid, i);
+./implementation/cbuf_c/tmem.c:210:		ret = sched_block(cos_spd_id(), dep_thd);
+./implementation/cbuf_c/naive/cbuf.c:100:	d_addr = valloc_alloc(cos_spd_id(), sti->spdid, 1);
+./implementation/cbuf_c/naive/cbuf.c:106:	if (unlikely(!mman_alias_page(cos_spd_id(), (vaddr_t)l_addr, d_spdid, (vaddr_t)d_addr, MAPPING_RW))) 
+./implementation/cbuf_c/naive/cbuf.c:117:	mman_release_page(cos_spd_id(), (vaddr_t)l_addr, 0);
+./implementation/cbuf_c/naive/cbuf.c:118:	/* valloc_free(cos_spd_id(), cos_spd_id(), l_addr, 1); */
+./implementation/cbuf_c/naive/cbuf.c:119:	valloc_free(cos_spd_id(), d_spdid, (void *)d_addr, 1);
+./implementation/cbuf_c/naive/cbuf.c:312:	p = (vaddr_t)valloc_alloc(cos_spd_id(), spdid, 1);
+./implementation/cbuf_c/naive/cbuf.c:314:	if (p != (mman_alias_page(cos_spd_id(), mgr_addr, spdid, p, MAPPING_RW))) {
+./implementation/cbuf_c/naive/cbuf.c:315:		valloc_free(cos_spd_id(), spdid, (void *)p, 1);
+./implementation/cbuf_c/naive/cbuf.c:427:	mman_revoke_page(cos_spd_id(), (vaddr_t)d->addr, 0);  // remove all mapped children
+./implementation/cbuf_c/naive/cbuf.c:439:		valloc_free(cos_spd_id(), m->spd, (void *)(m->addr), 1);
+./implementation/cbuf_c/naive/cbuf.c:446:	valloc_free(cos_spd_id(), sti->spdid, (void *)(d->owner.addr), 1);
+./implementation/cbuf_c/naive/cbuf.c:497:	d_addr = (vaddr_t)valloc_alloc(cos_spd_id(), spdid, 1);
+./implementation/cbuf_c/naive/cbuf.c:508:	if (unlikely(!mman_alias_page(cos_spd_id(), (vaddr_t)l_addr, spdid, d_addr, MAPPING_RW))) {
+./implementation/cbuf_c/naive/cbuf.c:536:	valloc_free(cos_spd_id(), spdid, (void*)d_addr, 1);
+./implementation/cbuf_c/naive/cbuf.c:688:	DOUT("CBUFMgr: %d in spd %ld cbuf mgr running.....\n", cos_get_thd_id(), cos_spd_id());
+./implementation/cbuf_c/naive/cbuf.c:713:		hp = valloc_alloc(cos_spd_id(), cos_spd_id(), 1);
+./implementation/cbuf_c/naive/cbuf.c:717:		if(cinfo_map(cos_spd_id(), (vaddr_t)hp, spdid)){
+./implementation/hlthd/hlthd.c:11:	timed_event_block(cos_spd_id(), 1);
+./implementation/par_mgr/default/par_mgr.c:133:		printc("par_mgr: alloc ring buffer failed in mgr %ld.\n", cos_spd_id());
+./implementation/par_mgr/default/par_mgr.c:139:	ring_cli = (vaddr_t)valloc_alloc(cos_spd_id(), cspd, 1);
+./implementation/par_mgr/default/par_mgr.c:144:	if (unlikely(ring_cli != mman_alias_page(cos_spd_id(), ring_mgr, cspd, ring_cli, MAPPING_RW))) {
+./implementation/par_mgr/default/par_mgr.c:150:	ring_srv = (vaddr_t)valloc_alloc(cos_spd_id(), sspd, 1);
+./implementation/par_mgr/default/par_mgr.c:155:	if (unlikely(ring_srv != mman_alias_page(cos_spd_id(), ring_mgr, sspd, ring_srv, MAPPING_RW))) {
+./implementation/par_mgr/default/par_mgr.c:171:	valloc_free(cos_spd_id(), sspd, (void *)ring_srv, 1);
+./implementation/par_mgr/default/par_mgr.c:173:	mman_revoke_page(cos_spd_id(), ring_mgr, 0); 
+./implementation/par_mgr/default/par_mgr.c:175:	valloc_free(cos_spd_id(), cspd, (void *)ring_cli, 1);
+./implementation/par_mgr/default/par_mgr.c:310:		printc("acap mgr %ld: cannot allocate memory for thd_info structure.\n", cos_spd_id());
+./implementation/par_mgr/default/par_mgr.c:360:	if (sched_wakeup(cos_spd_id(), srv_thd_id)) BUG();
+./implementation/par_mgr/default/par_mgr.c:414:		printc("par_mgr: alloc ring buffer failed in mgr %ld.\n", cos_spd_id());
+./implementation/par_mgr/default/par_mgr.c:420:	ring_cli = (vaddr_t)valloc_alloc(cos_spd_id(), cspd, 1);
+./implementation/par_mgr/default/par_mgr.c:425:	if (unlikely(ring_cli != mman_alias_page(cos_spd_id(), ring_mgr, cspd, ring_cli, MAPPING_RW))) {
+./implementation/par_mgr/default/par_mgr.c:447:	valloc_free(cos_spd_id(), cspd, (void *)ring_cli, 1);
+./implementation/par_mgr/default/par_mgr.c:571:	printc("par_mgr %ld: Cannot allocate memory for thd %d multicast structure.\n", cos_spd_id(), cos_get_thd_id());
+./implementation/par_mgr/default/par_mgr.c:688:	printc("par_mgr %ld: Cannot allocate memory for thd %d.\n", cos_spd_id(), curr);
+./implementation/par_mgr/default/par_mgr.c:865:	if (sched_wakeup(cos_spd_id(), srv_thd_id)) BUG(); // wakeup and block should be within the same comp!!!
+./implementation/par_mgr/default/par_mgr.c:916:	printc("par_mgr %ld: Cannot allocate memory for thd %d.\n", cos_spd_id(), cos_get_thd_id());
+./implementation/par_mgr/default/par_mgr.c:968:	printc("par_mgr %ld: Cannot allocate memory for thd %d.\n", cos_spd_id(), cos_get_thd_id());
+./implementation/par_mgr/default/par_mgr.c:1057:	if (sched_wakeup(cos_spd_id(), srv_thd_id)) BUG(); // wakeup and block should be within the same comp!!!
+./implementation/tests/micro_mbox_client/mbox_client.c:48:		if (sched_create_thd(cos_spd_id(), sp.v, 0, 0) == 0) BUG();
+./implementation/tests/micro_mbox_client/mbox_client.c:51:	evt = evt_split(cos_spd_id(), 0, 0);
+./implementation/tests/micro_mbox_client/mbox_client.c:53:	serv = tsplit(cos_spd_id(), td_root, params1, strlen(params1), TOR_RW, evt);
+./implementation/tests/micro_mbox_client/mbox_client.c:57:	evt_wait(cos_spd_id(), evt);
+./implementation/tests/micro_mbox_client/mbox_client.c:69:		ret = twritep(cos_spd_id(), serv, cb1, sz);
+./implementation/tests/micro_mbox_client/mbox_client.c:79:	periodic_wake_create(cos_spd_id(), period);
+./implementation/tests/micro_mbox_client/mbox_client.c:91:			ret = twritep(cos_spd_id(), serv, cb1, i*sz);
+./implementation/tests/micro_mbox_client/mbox_client.c:93:		periodic_wake_wait(cos_spd_id());
+./implementation/tests/micro_mbox_client/mbox_client.c:97:	trelease(cos_spd_id(), serv);
+./implementation/tests/micro_PIP_cbuf3/micro_cbuf3.c:44:		sched_wakeup(cos_spd_id(), high);
+./implementation/tests/micro_PIP_cbuf3/micro_cbuf3.c:66:		sched_wakeup(cos_spd_id(), high);
+./implementation/tests/micro_PIP_cbuf2/micro_cbuf2.c:21:			sched_block(cos_spd_id(), 0);
+./implementation/tests/micro_PIP_cbuf2/micro_cbuf2.c:46:			sched_block(cos_spd_id(), 0);
+./implementation/tests/unit_tar/tar_test.c:38:	t = tsplit(cos_spd_id(), td_root, f->name, strlen(f->name), TOR_READ, evt);
+./implementation/tests/unit_tar/tar_test.c:40:	ret = tread_pack(cos_spd_id(), t, buffer, 1023);
+./implementation/tests/unit_tar/tar_test.c:46:	trelease(cos_spd_id(), t);
+./implementation/tests/unit_tar/tar_test.c:57:	evt = evt_split(cos_spd_id(), 0, 0);
+Binary file ./implementation/tests/unit_torrent/.torrent_test.c.swp matches
+./implementation/tests/unit_torrent/torrent_test.c:35:	c = treadp(cos_spd_id(), 0, &a, &b);
+./implementation/tests/unit_torrent/torrent_test.c:41:	evt1 = evt_split(cos_spd_id(), 0, 0);
+./implementation/tests/unit_torrent/torrent_test.c:42:	evt2 = evt_split(cos_spd_id(), 0, 0);
+./implementation/tests/unit_torrent/torrent_test.c:45:	t1 = tsplit(cos_spd_id(), td_root, params1, strlen(params1), TOR_ALL, evt1);
+./implementation/tests/unit_torrent/torrent_test.c:50:	trelease(cos_spd_id(), t1);
+./implementation/tests/unit_torrent/torrent_test.c:53:	t1 = tsplit(cos_spd_id(), td_root, params2, strlen(params2), TOR_ALL, evt1);
+./implementation/tests/unit_torrent/torrent_test.c:57:	t2 = tsplit(cos_spd_id(), t1, params1, strlen(params1), TOR_ALL, evt2);
+./implementation/tests/unit_torrent/torrent_test.c:62:	ret1 = twrite_pack(cos_spd_id(), t1, data1, strlen(data1));
+./implementation/tests/unit_torrent/torrent_test.c:63:	ret2 = twrite_pack(cos_spd_id(), t2, data2, strlen(data2));
+./implementation/tests/unit_torrent/torrent_test.c:66:	trelease(cos_spd_id(), t1);
+./implementation/tests/unit_torrent/torrent_test.c:67:	trelease(cos_spd_id(), t2);
+./implementation/tests/unit_torrent/torrent_test.c:70:	t1 = tsplit(cos_spd_id(), td_root, params2, strlen(params2), TOR_ALL, evt1);
+./implementation/tests/unit_torrent/torrent_test.c:71:	t2 = tsplit(cos_spd_id(), t1, params1, strlen(params1), TOR_ALL, evt2);
+./implementation/tests/unit_torrent/torrent_test.c:77:	ret1 = tread_pack(cos_spd_id(), t1, buffer, 1023);
+./implementation/tests/unit_torrent/torrent_test.c:84:	ret1 = tread_pack(cos_spd_id(), t2, buffer, 1023);
+./implementation/tests/unit_torrent/torrent_test.c:91:	trelease(cos_spd_id(), t1);
+./implementation/tests/unit_torrent/torrent_test.c:92:	trelease(cos_spd_id(), t2);
+./implementation/tests/unit_torrent/torrent_test.c:96:	t1 = tsplit(cos_spd_id(), td_root, params3, strlen(params3), TOR_ALL, evt1);
+./implementation/tests/unit_torrent/torrent_test.c:97:	ret1 = tread_pack(cos_spd_id(), t1, buffer, 1023);
+./implementation/tests/unit_torrent/torrent_test.c:105:	ret1 = twrite_pack(cos_spd_id(), t1, data1, strlen(data1));
+./implementation/tests/unit_torrent/torrent_test.c:108:	trelease(cos_spd_id(), t1);
+./implementation/tests/unit_torrent/torrent_test.c:109:	t1 = tsplit(cos_spd_id(), td_root, params3, strlen(params3), TOR_ALL, evt1);
+./implementation/tests/unit_torrent/torrent_test.c:110:	ret1 = tread_pack(cos_spd_id(), t1, buffer, 1023);
+./implementation/tests/micro_fpu/micro_fpu.c:30:                high_prio_thd = sched_create_thd(cos_spd_id(), sp.v, 0, 0);
+./implementation/tests/micro_fpu/micro_fpu.c:35:                low_prio_thd = sched_create_thd(cos_spd_id(), sp.v, 0, 0);
+./implementation/tests/micro_fpu/micro_fpu.c:45:                                sched_block(cos_spd_id(), low_prio_thd);
+./implementation/tests/micro_fpu/micro_fpu.c:68:                                sched_wakeup(cos_spd_id(), high_prio_thd);
+./implementation/tests/micro_pong_cbuf/micro_pong.c:65:		sched_wakeup(cos_spd_id(), high);
+./implementation/tests/micro_pong_cbuf/micro_pong.c:71:		sched_block(cos_spd_id(), 0);
+./implementation/tests/micro_pong_cbuf/micro_pong.c:73:		sched_block(cos_spd_id(), low);
+./implementation/tests/micro_pong_cbuf/micro_pong.c:77:		sched_wakeup(cos_spd_id(), high);
+./implementation/tests/omp_jacobi/jacobi.c:372:	if ((ret = cos_vas_cntl(COS_VAS_SPD_EXPAND, cos_spd_id(), (long)mem_addr, COS_MEM))) {
+./implementation/tests/omp_jacobi/jacobi.c:379:		addr = mman_get_page(cos_spd_id(), (vaddr_t)mem_addr + ii * PAGE_SIZE, 0);
+./implementation/tests/trans_ltoc/trans_ltoc.c:94:	start = valloc_alloc(cos_spd_id(), cos_spd_id(), sz/PAGE_SIZE);
+./implementation/tests/trans_ltoc/trans_ltoc.c:103:	acap = cos_async_cap_cntl(COS_ACAP_CREATE, cos_spd_id(), cos_spd_id(), 
+./implementation/tests/trans_ltoc/trans_ltoc.c:157:		if (sched_create_thd(cos_spd_id(), sp.v, 0, 0) == 0) BUG();
+./implementation/tests/omp_fft/fft_cos.c:667:	if ((ret = cos_vas_cntl(COS_VAS_SPD_EXPAND, cos_spd_id(), (long)mem_addr, COS_MEM))) {
+./implementation/tests/omp_fft/fft_cos.c:674:		addr = mman_get_page(cos_spd_id(), (vaddr_t)mem_addr + ii * PAGE_SIZE, 0);
+./implementation/tests/trans_ctol/trans_ctol.c:26:		if (sched_create_thd(cos_spd_id(), sp.v, 0, 0) == 0) BUG();
+./implementation/tests/micro_stk/micro_stack.c:24:		sched_create_thd(cos_spd_id(), sp.v, 0, 0);
+./implementation/tests/micro_stk/micro_stack.c:28:		sched_create_thd(cos_spd_id(), sp.v, 0, 0);
+./implementation/tests/omp_lu/lu.c:269:	if ((ret = cos_vas_cntl(COS_VAS_SPD_EXPAND, cos_spd_id(), (long)mem_addr, COS_MEM))) {
+./implementation/tests/omp_lu/lu.c:276:		addr = mman_get_page(cos_spd_id(), (vaddr_t)mem_addr + ii * PAGE_SIZE, 0);
+./implementation/tests/micro_mbox_server/mbox_server.c:47:		if (sched_create_thd(cos_spd_id(), sp.v, 0, 0) == 0) BUG();
+./implementation/tests/micro_mbox_server/mbox_server.c:50:	evt1 = evt_split(cos_spd_id(), 0, 0);
+./implementation/tests/micro_mbox_server/mbox_server.c:52:	evt2 = evt_split(cos_spd_id(), 0, 0);
+./implementation/tests/micro_mbox_server/mbox_server.c:54:	t1 = tsplit(cos_spd_id(), td_root, params1, strlen(params1), TOR_ALL | TOR_NONPERSIST, evt1);
+./implementation/tests/micro_mbox_server/mbox_server.c:58:	evt_wait(cos_spd_id(), evt1);
+./implementation/tests/micro_mbox_server/mbox_server.c:59:	cli = tsplit(cos_spd_id(), t1, params2, strlen(params2), TOR_RW, evt2);
+./implementation/tests/micro_mbox_server/mbox_server.c:67:			cb1 = treadp(cos_spd_id(), cli, &off, &sz);
+./implementation/tests/micro_mbox_server/mbox_server.c:68:			if ((int)cb1<0) evt_wait(cos_spd_id(), evt2);
+./implementation/tests/micro_mbox_server/mbox_server.c:77:	periodic_wake_create(cos_spd_id(), period);
+./implementation/tests/micro_mbox_server/mbox_server.c:82:				cb1 = treadp(cos_spd_id(), cli, &off, &sz);
+./implementation/tests/micro_mbox_server/mbox_server.c:83:				if((int)cb1<0) evt_wait(cos_spd_id(), evt2);
+./implementation/tests/micro_mbox_server/mbox_server.c:92:		periodic_wake_wait(cos_spd_id());
+./implementation/tests/micro_mbox_server/mbox_server.c:95:	trelease(cos_spd_id(), cli);
+./implementation/tests/micro_mbox_server/mbox_server.c:96:	trelease(cos_spd_id(), t1);
+./implementation/tests/unit_translator/trans.c:26:	evt = evt_split(cos_spd_id(), 0, 0);
+./implementation/tests/unit_translator/trans.c:28:	td = tsplit(cos_spd_id(), td_root, params, strlen(params), TOR_READ, evt);
+./implementation/tests/unit_translator/trans.c:30:		evt_wait(cos_spd_id(), evt);
+./implementation/tests/unit_translator/trans.c:31:		amnt = tread_pack(cos_spd_id(), td, buffer, left);
+./implementation/tests/micro_PIP_cbuf1/micro_cbuf1.c:22:		sched_create_thd(cos_spd_id(), sp.v, 0, 0);
+./implementation/tests/micro_PIP_cbuf1/micro_cbuf1.c:26:		sched_create_thd(cos_spd_id(), sp.v, 0, 0);
+./implementation/tests/micro_cs/micro_cs.c:25:		sched_create_thd(cos_spd_id(), sp.v, 0, 0);
+./implementation/tests/micro_cs/micro_cs.c:29:		sched_create_thd(cos_spd_id(), sp.v, 0, 0);
+./implementation/cbuf_bot/serv/cbufs.c:10:	printc("\n****** BOT: thread %d in spd %ld ******\n",cos_get_thd_id(), cos_spd_id());
+./implementation/cbuf_bot/serv/cbufs.c:26:	printc("spd %ld\n",cos_spd_id());
+./implementation/mem_pool/naive/mem_pool.c:73:	mman_revoke_page(cos_spd_id(), (vaddr_t)(page->l_addr), 0); 
+./implementation/mem_pool/naive/mem_pool.c:74:	valloc_free(cos_spd_id(), d_spdid, mgr_addr, 1);
+./implementation/mem_pool/naive/mem_pool.c:81:			sched_wakeup(cos_spd_id(), mgr->thdid);
+./implementation/mem_pool/naive/mem_pool.c:123:	mgr_addr = valloc_alloc(cos_spd_id(), d_spdid, 1);
+./implementation/mem_pool/naive/mem_pool.c:129:	if (unlikely(!mman_alias_page(cos_spd_id(), (vaddr_t)page->l_addr, d_spdid, (vaddr_t)mgr_addr, MAPPING_RW))) 
+./implementation/mem_pool/naive/mem_pool.c:142:	valloc_free(cos_spd_id(), d_spdid, mgr_addr, 1);
+./implementation/mem_pool/naive/mem_pool.c:227:	sched_block(cos_spd_id(), 0);	
+./implementation/net_internet/ip/cos_ip.c:28:	return netif_event_xmit(cos_spd_id(), d);
+./implementation/net_internet/ip/cos_ip.c:33:	return netif_event_wait(cos_spd_id(), d);
+./implementation/net_internet/ip/cos_ip.c:38:	return netif_event_release(cos_spd_id());
+./implementation/net_internet/ip/cos_ip.c:43:	return netif_event_create(cos_spd_id());
+./implementation/resres/lenient/resres.c:67:		BUG_ON(sched_thread_params(cos_spd_id(), rr->dest, rs));
+./implementation/resres/lenient/resres.c:123:void hack(void) { sched_block(cos_spd_id(), 0); }
+./implementation/torrent/tcp/cos_net.c:382:		sched_wakeup(cos_spd_id(), ic->tid);
+./implementation/torrent/tcp/cos_net.c:475:		if (-1 != ic->data && evt_trigger(cos_spd_id(), ic->data)) BUG();
+./implementation/torrent/tcp/cos_net.c:585:	if (-1 != ic->data && evt_trigger(cos_spd_id(), ic->data)) BUG();
+./implementation/torrent/tcp/cos_net.c:590:/* 		if (sched_wakeup(cos_spd_id(), ic->tid)) BUG(); */
+./implementation/torrent/tcp/cos_net.c:607:	//if (evt_trigger(cos_spd_id(), ic->data)) BUG();
+./implementation/torrent/tcp/cos_net.c:618:	if (sched_wakeup(cos_spd_id(), ic->tid)) BUG();
+./implementation/torrent/tcp/cos_net.c:683:	new_port = portmgr_new(cos_spd_id());
+./implementation/torrent/tcp/cos_net.c:700:	if (evt_trigger(cos_spd_id(), ic->data)) BUG();
+./implementation/torrent/tcp/cos_net.c:807:/* 		if (sched_block(cos_spd_id(), 0) < 0) BUG(); */
+./implementation/torrent/tcp/cos_net.c:842:	    evt_trigger(cos_spd_id(), data)) goto err;
+./implementation/torrent/tcp/cos_net.c:903:	if (portmgr_bind(cos_spd_id(), port)) {
+./implementation/torrent/tcp/cos_net.c:988:		if (sched_block(cos_spd_id(), 0) < 0) BUG();
+./implementation/torrent/tcp/cos_net.c:1030:	portmgr_free(cos_spd_id(), /* u16_t port_num */ 0);
+./implementation/torrent/tcp/cos_net.c:1267:	ip_td = parent_tsplit(cos_spd_id(), td_root, "", 0, TOR_ALL, -1);
+./implementation/torrent/tcp/cos_net.c:1276:		sz = parent_tread(cos_spd_id(), ip_td, cb, alloc_sz);
+./implementation/torrent/tcp/cos_net.c:1325:	sz = parent_twrite(cos_spd_id(), ip_td, cb, tot_len);
+./implementation/torrent/tcp/cos_net.c:1624:		timed_event_block(cos_spd_id(), 25); /* expressed in ticks currently */
+./implementation/torrent/linux_nic/netif.c:345:	acap = cos_async_cap_cntl(COS_ACAP_CREATE, cos_spd_id(), cos_spd_id(), cos_get_thd_id());
+./implementation/torrent/linux_nic/netif.c:352:	if (sched_create_net_acap(cos_spd_id(), wildcard_acap_id, port)) return -1;
+./implementation/torrent/linux_nic/netif.c:576:	netif_event_release(cos_spd_id());
+./implementation/torrent/translator/translator.c:174:	start = valloc_alloc(cos_spd_id(), cos_spd_id(), sz/PAGE_SIZE);
+./implementation/torrent/translator/translator.c:182:		acap = cos_async_cap_cntl(COS_ACAP_CREATE, cos_spd_id(), cos_spd_id(), 
+./implementation/torrent/translator/translator.c:195:			evt_trigger(cos_spd_id(), channels[channel].t->evtid);
+./implementation/torrent/tar_ro/tar.c:50:	evt_trigger(cos_spd_id(), evtid);
+./implementation/torrent/http/https.c:247:		r->content_id = server_tsplit(cos_spd_id(), td_root, r->path, 
+./implementation/torrent/http/https.c:418:	server_trelease(cos_spd_id(), r->content_id);
+./implementation/torrent/http/https.c:619:			ret = server_tread(cos_spd_id(), r->content_id, cb, sz);
+./implementation/torrent/http/https.c:922:	if (periodic_wake_create(cos_spd_id(), HTTP_REPORT_FREQ)) BUG();
+./implementation/torrent/http/https.c:924:		periodic_wake_wait(cos_spd_id());
+./implementation/torrent/ip/cos_ip.c:33:/* 	return netif_event_xmit(cos_spd_id(), d); */
+./implementation/torrent/ip/cos_ip.c:38:/* 	return netif_event_wait(cos_spd_id(), d); */
+./implementation/torrent/ip/cos_ip.c:43:/* 	return netif_event_release(cos_spd_id()); */
+./implementation/torrent/ip/cos_ip.c:48:/* 	return netif_event_create(cos_spd_id()); */
+./implementation/torrent/ip/cos_ip.c:59:	ntd = parent_tsplit(cos_spd_id(), tid, param, len, tflags, evtid);
+./implementation/torrent/ip/cos_ip.c:79:	parent_trelease(cos_spd_id(), ntd);
+./implementation/torrent/ip/cos_ip.c:114:	ret = parent_twrite(cos_spd_id(), ntd, ncbid, sz);
+./implementation/torrent/ip/cos_ip.c:142:	ret = parent_tread(cos_spd_id(), ntd, ncbid, sz);
+./implementation/torrent/async_conn/as_connector.c:74:		evt_trigger(cos_spd_id(), i->ts[CLIENT]->evtid);
+./implementation/torrent/async_conn/as_connector.c:142:	evt_trigger(cos_spd_id(), ac->ts[CLIENT]->evtid);
+./implementation/torrent/async_conn/as_connector.c:166:	if (acr->t) evt_trigger(cos_spd_id(), acr->t->evtid);
+./implementation/torrent/async_conn/as_connector.c:186:	evt_trigger(cos_spd_id(), ac->ts[other_ep]->evtid);
+./implementation/torrent/async_conn/as_connector.c:316:			else            evt_trigger(cos_spd_id(), ac->ts[1]->evtid);
+./implementation/torrent/async_conn/as_connector.c:320:			else            evt_trigger(cos_spd_id(), ac->ts[0]->evtid);
+./implementation/evt/edge_grp/evt.c:260:		if (!ret && 0 > sched_block(cos_spd_id(), 0)) BUG();
+./implementation/evt/edge_grp/evt.c:273:	if (ret && sched_wakeup(cos_spd_id(), ret)) BUG();
+./implementation/evt/edge/evt.c:220:			if (0 > sched_block(cos_spd_id(), 0)) BUG();
+./implementation/evt/edge/evt.c:269:		if (0 > sched_block(cos_spd_id(), 0)) BUG();
+./implementation/evt/edge/evt.c:305:			if (0 > sched_block(cos_spd_id(), 0)) BUG();
+./implementation/evt/edge/evt.c:344:		if (sched_wakeup(cos_spd_id(), ret)) BUG();
+./implementation/exe_cbuf_synth_hier/exe_cbuf_shrec/exe_cbuf_synth_hier.c:113:	/* if (sched_comp_config_initstr(cos_spd_id(), data)) { */
+./implementation/exe_cbuf_synth_hier/exe_cbuf_shrec/exe_cbuf_synth_hier.c:177:	DOUTs("thd %d enter comp %ld!\n", cos_get_thd_id(), cos_spd_id());
+./implementation/exe_cbuf_synth_hier/exe_cbuf_shrec/exe_cbuf_synth_hier.c:191:	/* printc("In spd %d\n", cos_spd_id()); */
+./implementation/exe_cbuf_synth_hier/exe_cbuf_shrec/exe_cbuf_synth_hier.c:196:		DOUTs("---- cost Bf2Bf :: %llu in spd %ld\n", end-start, cos_spd_id());
+./implementation/exe_cbuf_synth_hier/exe_cbuf_shrec/exe_cbuf_synth_hier.c:199:			DOUTs("Can not map into this spd %ld\n", cos_spd_id());
+./implementation/exe_cbuf_synth_hier/exe_cbuf_shrec/exe_cbuf_synth_hier.c:224:			sched_block(cos_spd_id(), 0);
+./implementation/exe_cbuf_synth_hier/exe_cbuf_shrec/exe_cbuf_synth_hier.c:228:			sched_wakeup(cos_spd_id(), 15);
+./implementation/exe_cbuf_synth_hier/exe_cbuf_shrec/exe_cbuf_synth_hier.c:250:			timed_event_block(cos_spd_id(), 2);
+./implementation/exe_cbuf_synth_hier/exe_cbuf_shrec/exe_cbuf_synth_hier.c:332:	printc("Component %ld: stack and cbuf pre_alloacated.\n", cos_spd_id());
+./implementation/exe_cbuf_synth_hier/exe_self_suspended/exe_self_suspended.c:58:	/* if (sched_comp_config_initstr(cos_spd_id(), data)) { */
+./implementation/exe_cbuf_synth_hier/exe_self_suspended/exe_self_suspended.c:97:	/* printc(">> Now I thd %d am in ss spd %d\n",cos_get_thd_id(),cos_spd_id()); */
+./implementation/exe_cbuf_synth_hier/exe_self_suspended/exe_self_suspended.c:106:	timed_event_block(cos_spd_id(), ss_time);  /* blocked for some ticks  */
+./implementation/stkmgr/tmem.h:180:		sched_wakeup(cos_spd_id(), tid);
+./implementation/stkmgr/tmem.h:183:		sched_wakeup(cos_spd_id(), tid);
+./implementation/stkmgr/tmem.h:221:		mempool_clear_glb_blked(cos_spd_id());
+./implementation/stkmgr/tmem.h:289:	DOUT("waking up local threads for spd %ld\n", cos_spd_id());
+./implementation/stkmgr/tmem.h:309:	DOUT("waking up the first local threads for spd %ld\n", cos_spd_id());
+./implementation/stkmgr/tmem.h:323:			mempool_clear_glb_blked(cos_spd_id());
+./implementation/stkmgr/tmem.h:512:	printc("MGR %ld -> allocated: %d,\n", cos_spd_id(), tmems_allocated);
+./implementation/stkmgr/tmem.c:42:		mempool_put_mem(cos_spd_id(), LOCAL_ADDR(tmi));
+./implementation/stkmgr/tmem.c:76:		l_addr = mempool_get_mem(cos_spd_id(), 1);
+./implementation/stkmgr/tmem.c:92:		mempool_tmem_mgr_event_waiting(cos_spd_id());
+./implementation/stkmgr/tmem.c:107:	spd_id = cos_spd_id();
+./implementation/stkmgr/tmem.c:124:	spd_id = cos_spd_id();
+./implementation/stkmgr/tmem.c:145:	sched_block(cos_spd_id(), 0);
+./implementation/stkmgr/tmem.c:188:			       cos_spd_id(), sti->ss_counter,sti->spdid, cos_get_thd_id(), sti->num_waiting_thds, sti->num_desired, sti->num_allocated);
+./implementation/stkmgr/tmem.c:207:		DOUT("MGR %ld >>> %d try to depend on %d comp %d i%d\n", cos_spd_id(), cos_get_thd_id(), dep_thd, sti->spdid, i);
+./implementation/stkmgr/tmem.c:210:		ret = sched_block(cos_spd_id(), dep_thd);
+./implementation/stkmgr/naive/stkmgr.c:95:	d_addr = (vaddr_t)valloc_alloc(cos_spd_id(), d_spdid, 1);
+./implementation/stkmgr/naive/stkmgr.c:101:	if (unlikely(d_addr != mman_alias_page(cos_spd_id(), stk_addr, d_spdid, d_addr, MAPPING_RW))){
+./implementation/stkmgr/naive/stkmgr.c:144:	mman_revoke_page(cos_spd_id(), (vaddr_t)(stk_item->hptr), 0); 
+./implementation/stkmgr/naive/stkmgr.c:145:	valloc_free(cos_spd_id(), s_spdid, (void *)stk_item->d_addr, 1);
+./implementation/stkmgr/naive/stkmgr.c:194:		hp = valloc_alloc(cos_spd_id(), cos_spd_id(), 1);
+./implementation/stkmgr/naive/stkmgr.c:198:		if(cinfo_map(cos_spd_id(), (vaddr_t)hp, spdid)){
+./implementation/stkmgr/naive/stkmgr.c:333:	hp = valloc_alloc(cos_spd_id(), cos_spd_id(), 1);
+./implementation/stkmgr/naive/stkmgr.c:334:	if(cinfo_map(cos_spd_id(), (vaddr_t)hp, s)){
+./implementation/stkmgr/naive/stkmgr.c:556:	if (d_addr != mman_alias_page(cos_spd_id(), (vaddr_t)si->hptr, d_spdid, d_addr, MAPPING_RW)){
+./implementation/lock/two_phase/lock.c:206: 	spdid_t spdid = cos_spd_id();
+./implementation/lock/two_phase/lock.c:232:	spdid_t spdid = cos_spd_id();
+./implementation/lock/two_phase/lock.c:301:	spdid_t spdid = cos_spd_id();
+./implementation/lock/two_phase/lock.c:368:	spdid_t spdid = cos_spd_id();
+./implementation/lock/two_phase/lock.c:381:	spdid_t spdid = cos_spd_id();
+./implementation/lock/pessimistic/pessimistic.c:172:	spdid_t spdid = cos_spd_id();
+./implementation/lock/pessimistic/pessimistic.c:250:	spdid_t spdid = cos_spd_id();
+./implementation/lock/pessimistic/pessimistic.c:302:	spdid_t spdid = cos_spd_id();
+./implementation/lock/pessimistic/pessimistic.c:315:	spdid_t spdid = cos_spd_id();
+./implementation/http/echo/echos.c:76:		evt_trigger(cos_spd_id(), c->evt_id);
+./implementation/http/http/https.c:252:		r->content_id = content_open(cos_spd_id(), r->c->evt_id, arg);
+./implementation/http/http/https.c:258:	ret = content_request(cos_spd_id(), r->content_id, arg);
+./implementation/http/http/https.c:424:	content_close(cos_spd_id(), r->content_id);
+./implementation/http/http/https.c:628:			if ((ret = content_retrieve(cos_spd_id(), r->content_id, arr, more))) {
+./implementation/http/http/https.c:796:		timed_event_block(cos_spd_id(), HTTP_REPORT_FREQ);
+./implementation/net_transport/tcp/cos_net.c:383:		sched_wakeup(cos_spd_id(), ic->tid);
+./implementation/net_transport/tcp/cos_net.c:476:		if (-1 != ic->data && evt_trigger(cos_spd_id(), ic->data)) BUG();
+./implementation/net_transport/tcp/cos_net.c:586:	if (-1 != ic->data && evt_trigger(cos_spd_id(), ic->data)) BUG();
+./implementation/net_transport/tcp/cos_net.c:591:/* 		if (sched_wakeup(cos_spd_id(), ic->tid)) BUG(); */
+./implementation/net_transport/tcp/cos_net.c:608:	//if (evt_trigger(cos_spd_id(), ic->data)) BUG();
+./implementation/net_transport/tcp/cos_net.c:619:	if (sched_wakeup(cos_spd_id(), ic->tid)) BUG();
+./implementation/net_transport/tcp/cos_net.c:684:	new_port = portmgr_new(cos_spd_id());
+./implementation/net_transport/tcp/cos_net.c:701:	if (evt_trigger(cos_spd_id(), ic->data)) BUG();
+./implementation/net_transport/tcp/cos_net.c:808:/* 		if (sched_block(cos_spd_id(), 0) < 0) BUG(); */
+./implementation/net_transport/tcp/cos_net.c:844:	    evt_trigger(cos_spd_id(), data)) goto err;
+./implementation/net_transport/tcp/cos_net.c:905:	if (portmgr_bind(cos_spd_id(), port)) {
+./implementation/net_transport/tcp/cos_net.c:991:		if (sched_block(cos_spd_id(), 0) < 0) BUG();
+./implementation/net_transport/tcp/cos_net.c:1033:	portmgr_free(cos_spd_id(), /* u16_t port_num */ 0);
+./implementation/net_transport/tcp/cos_net.c:1265:	if (ip_netif_create(cos_spd_id())) BUG();
+./implementation/net_transport/tcp/cos_net.c:1272:		ip_wait(cos_spd_id(), data);
+./implementation/net_transport/tcp/cos_net.c:1321:	if (0 > ip_xmit(cos_spd_id(), b)) BUG();
+./implementation/net_transport/tcp/cos_net.c:1392:	if (0 > (event_thd = sched_create_thread(cos_spd_id(), data))) BUG();
+./implementation/net_transport/tcp/cos_net.c:1430:		timed_event_block(cos_spd_id(), 25); /* expressed in ticks currently */
+./implementation/no_interface/periodic/periodic.c:55:	/* if (sched_comp_config_initstr(cos_spd_id(), data)) { */
+./implementation/no_interface/periodic/periodic.c:72:	periodic_wake_create(cos_spd_id(), period);
+./implementation/no_interface/periodic/periodic.c:77:	periodic_wake_wait(cos_spd_id());
+./implementation/no_interface/periodic/periodic.c:78:	periodic_wake_wait(cos_spd_id());
+./implementation/no_interface/periodic/periodic.c:79:	periodic_wake_wait(cos_spd_id());
+./implementation/no_interface/periodic/periodic.c:84:		periodic_wake_wait(cos_spd_id());
+./implementation/no_interface/periodic/periodic.c:91:	sched_block(cos_spd_id(), 0);
+./implementation/no_interface/splitmerge_meas/sm_meas.c:35:	if (sched_create_thd(cos_spd_id(), sp.v, sp1.v, 0) == 0) BUG();
+./implementation/no_interface/splitmerge_meas/sm_meas.c:108:			evt_trigger(cos_spd_id(), evt);
+./implementation/no_interface/splitmerge_meas/sm_meas.c:128:	evt = evt_create(cos_spd_id());
+./implementation/no_interface/splitmerge_meas/sm_meas.c:149:		int ret = evt_wait_n(cos_spd_id(), evt, n_wait);
+./implementation/no_interface/periodic_read/periodic_read.c:46:	*eid = evt_create(cos_spd_id());
+./implementation/no_interface/periodic_read/periodic_read.c:49:	*nc = net_create_tcp_connection(cos_spd_id(), cos_get_thd_id(), *eid);
+./implementation/no_interface/periodic_read/periodic_read.c:52:	if (net_connect(cos_spd_id(), *nc, IP, PORT)) BUG();
+./implementation/no_interface/periodic_read/periodic_read.c:59:	net_close(cos_spd_id(), nc);
+./implementation/no_interface/periodic_read/periodic_read.c:60:	evt_free(cos_spd_id(), eid);
+./implementation/no_interface/periodic_read/periodic_read.c:75:	ret = net_send(cos_spd_id(), nc, msg, msg_sz);
+./implementation/no_interface/periodic_read/periodic_read.c:82:		evt_wait(cos_spd_id(), eid);
+./implementation/no_interface/periodic_read/periodic_read.c:85://		ret = net_recv(cos_spd_id(), nc, msg, COS_MAX_ARG_SZ/2);
+./implementation/no_interface/periodic_read/periodic_read.c:108:	periodic_wake_create(cos_spd_id(), period);
+./implementation/no_interface/periodic_read/periodic_read.c:125:		periodic_wake_wait(cos_spd_id());
+./implementation/no_interface/exe_cbuf_periodic/exe_cbuf_periodic.c:93:	/* if (sched_comp_config_initstr(cos_spd_id(), data)) { */
+./implementation/no_interface/exe_cbuf_periodic/exe_cbuf_periodic.c:120://	if (0 > (event_thd = sched_create_thread(cos_spd_id(), data))) assert(0);
+./implementation/no_interface/exe_cbuf_periodic/exe_cbuf_periodic.c:152:		if (sched_create_thd(cos_spd_id(), sp.v, 0, 0) == 0) BUG();
+./implementation/no_interface/exe_cbuf_periodic/exe_cbuf_periodic.c:156:				sched_create_thd(cos_spd_id(), sp.v, 0, 0);
+./implementation/no_interface/exe_cbuf_periodic/exe_cbuf_periodic.c:173:	printc("In spd %ld Thd %d, period %d ticks, execution time %d us in %lu cycles\n", cos_spd_id(),cos_get_thd_id(), local_period, exe_t, exe_cycle);
+./implementation/no_interface/exe_cbuf_periodic/exe_cbuf_periodic.c:187:		printc("<<<<1 thd %d in spd %ld\n",cos_get_thd_id(), cos_spd_id());
+./implementation/no_interface/exe_cbuf_periodic/exe_cbuf_periodic.c:209:		timed_event_block(cos_spd_id(), start_time_in_ticks);
+./implementation/no_interface/exe_cbuf_periodic/exe_cbuf_periodic.c:210:		printc("<<<<2 thd %d in spd %ld\n",cos_get_thd_id(), cos_spd_id());
+./implementation/no_interface/exe_cbuf_periodic/exe_cbuf_periodic.c:221:		periodic_wake_create(cos_spd_id(), local_period);
+./implementation/no_interface/exe_cbuf_periodic/exe_cbuf_periodic.c:232:			periodic_wake_wait(cos_spd_id());
+./implementation/no_interface/exe_cbuf_periodic/exe_cbuf_periodic.c:263:					timed_event_block(cos_spd_id(), 10000);
+./implementation/no_interface/exe_cbuf_periodic/exe_cbuf_periodic.c:271:				for(;;) periodic_wake_wait(cos_spd_id());
+./implementation/no_interface/exe_cbuf_periodic/exe_cbuf_periodic.c:281:			/* printc("\n @@thd %ld is sleeping in spd %d\n", cos_get_thd_id(), cos_spd_id()); */
+./implementation/no_interface/exe_cbuf_periodic/exe_cbuf_periodic.c:283:			periodic_wake_wait(cos_spd_id());
+./implementation/no_interface/exe_cbuf_periodic/exe_cbuf_periodic.c:286:			/* printc("\n @@thd %ld is waking in spd %d\n", cos_get_thd_id(), cos_spd_id()); */
+./implementation/no_interface/pipeline/pline.c:23:	long eid = evt_create(cos_spd_id());
+./implementation/no_interface/pipeline/pline.c:30:			timed_event_block(cos_spd_id(), BLOCK_TIME);
+./implementation/no_interface/pipeline/pline.c:32:		} else evt_wait(cos_spd_id(), eid);
+./implementation/no_interface/pipeline/pline.c:34:		if (eid > 0) evt_trigger(cos_spd_id(), eid-1);
+./implementation/no_interface/pipeline/pline.c:45:	sched_block(cos_spd_id(), 0);
+./implementation/no_interface/torrent_sconn/conn_mgr.c:82:evt_wait_all(void) { return evt_wait(cos_spd_id(), evt_all); }
+./implementation/no_interface/torrent_sconn/conn_mgr.c:93:	if (!evt_all) evt_all = evt_split(cos_spd_id(), 0, 1);
+./implementation/no_interface/torrent_sconn/conn_mgr.c:97:		evt_split(cos_spd_id(), evt_all, 0) :
+./implementation/no_interface/torrent_sconn/conn_mgr.c:107:	if (ncached >= EVT_CACHE_SZ) evt_free(cos_spd_id(), evtid);
+./implementation/no_interface/torrent_sconn/conn_mgr.c:159:		from = from_tsplit(cos_spd_id(), accept_fd, "", 0, TOR_RW, feid);
+./implementation/no_interface/torrent_sconn/conn_mgr.c:171:		to = tsplit(cos_spd_id(), td_root, "", 0, TOR_RW, teid);
+./implementation/no_interface/torrent_sconn/conn_mgr.c:195:		amnt = from_tread(cos_spd_id(), from, cb, BUFF_SZ-1);
+./implementation/no_interface/torrent_sconn/conn_mgr.c:204:		if (amnt != (ret = twrite(cos_spd_id(), to, cb, amnt))) {
+./implementation/no_interface/torrent_sconn/conn_mgr.c:216:	from_trelease(cos_spd_id(), from);
+./implementation/no_interface/torrent_sconn/conn_mgr.c:217:	trelease(cos_spd_id(), to);
+./implementation/no_interface/torrent_sconn/conn_mgr.c:237:		amnt = tread(cos_spd_id(), to, cb, BUFF_SZ-1);
+./implementation/no_interface/torrent_sconn/conn_mgr.c:246:		if (amnt != (ret = from_twrite(cos_spd_id(), from, cb, amnt))) {
+./implementation/no_interface/torrent_sconn/conn_mgr.c:258:	from_trelease(cos_spd_id(), from);
+./implementation/no_interface/torrent_sconn/conn_mgr.c:259:	trelease(cos_spd_id(), to);
+./implementation/no_interface/torrent_sconn/conn_mgr.c:285:	ret = c = from_tsplit(cos_spd_id(), td_root, create_str, strlen(create_str), TOR_ALL, eid);
+./implementation/no_interface/fpu/f.c:11:        timed_event_block(cos_spd_id(), 1);
+./implementation/no_interface/sched_recov_test/sr_test.c:16:	if (0 > (other = sched_create_thread(cos_spd_id(), data))) BUG();
+./implementation/no_interface/sched_recov_test/sr_test.c:25:			sched_wakeup(cos_spd_id(), first);
+./implementation/no_interface/sched_recov_test/sr_test.c:26:			sched_block(cos_spd_id(), 0);
+./implementation/no_interface/sched_recov_test/sr_test.c:32:			sched_block(cos_spd_id(), 0);
+./implementation/no_interface/sched_recov_test/sr_test.c:33:			sched_wakeup(cos_spd_id(), other);
+./implementation/no_interface/initf_test/initft.c:27:	sched_block(cos_spd_id(), 0);
+./implementation/no_interface/llboot/boot_deps.h:175:	failure_notif_fail(cos_spd_id(), spdid);
+./implementation/no_interface/llboot/boot_deps.h:227:	if (cos_mmap_cntl(COS_MMAP_GRANT, flags, cos_spd_id(), addr, frame_frontier++)) BUG();
+./implementation/no_interface/llboot/boot_deps.h:260:	llboot->recovery_thd = cos_create_thread(cos_spd_id(), 0, 0);
+./implementation/no_interface/llboot/boot_deps.h:262:	llboot->init_thd     = cos_create_thread(cos_spd_id(), 0, 0);
+./implementation/no_interface/llboot/booter.c:183:			if ((vaddr_t)dsrc != __local_mman_get_page(cos_spd_id(), (vaddr_t)dsrc, MAPPING_RW)) BUG();
+./implementation/no_interface/llboot/booter.c:184:			if (dest_daddr != (__local_mman_alias_page(cos_spd_id(), (vaddr_t)dsrc, spdid, dest_daddr, MAPPING_RW))) BUG();
+./implementation/no_interface/llboot/booter.c:490:	if (cos_vas_cntl(COS_VAS_SPD_EXPAND, cos_spd_id(), 
+./implementation/no_interface/test/t.c:11:	printc("hello world %d!\n", (int)cos_spd_id());
+./implementation/no_interface/test/t.c:13:	printc("hello world %d!\n", (int)cos_spd_id());
+./implementation/no_interface/test/t.c:19:	sched_block(cos_spd_id(), 0);
+./implementation/no_interface/pftest/pftest.c:28:/* 	fault_page_fault_handler(cos_spd_id(), NULL, 0, NULL); */
+./implementation/no_interface/pftest/pftest.c:29:/* 	sched_block(cos_spd_id(), 0); */
+./implementation/no_interface/tmem_policy/tmem_policy.c:939:		if (sched_create_thd(cos_spd_id(), sp.v, 0, 0) == 0) BUG();
+./implementation/no_interface/tmem_policy/tmem_policy.c:951:	DOUT("Tmem policy: %d in spd %ld\n", cos_get_thd_id(), cos_spd_id());
+./implementation/no_interface/tmem_policy/tmem_policy.c:955:	periodic_wake_create(cos_spd_id(), POLICY_PERIODICITY);
+./implementation/no_interface/tmem_policy/tmem_policy.c:960:		periodic_wake_wait(cos_spd_id());
+./implementation/no_interface/tmem_policy/tmem_policy.c:989:		periodic_wake_wait(cos_spd_id());
+./implementation/no_interface/exe_periodic/exe_periodic.c:96:	/* if (sched_comp_config_initstr(cos_spd_id(), data)) { */
+./implementation/no_interface/exe_periodic/exe_periodic.c:135:	printc("In spd %ld Thd %d, period %d ticks, execution time %d us in %lu cycles\n", cos_spd_id(),cos_get_thd_id(), local_period, exe_t, exe_cycle);
+./implementation/no_interface/exe_periodic/exe_periodic.c:141:		timed_event_block(cos_spd_id(), start_time_in_ticks);
+./implementation/no_interface/exe_periodic/exe_periodic.c:145:		periodic_wake_create(cos_spd_id(), local_period);
+./implementation/no_interface/exe_periodic/exe_periodic.c:156:			periodic_wake_wait(cos_spd_id());
+./implementation/no_interface/exe_periodic/exe_periodic.c:175:				if ( t > (unsigned long)(start_time_in_ticks + duration_time_in_ticks)) timed_event_block(cos_spd_id(), 10000);
+./implementation/no_interface/exe_periodic/exe_periodic.c:183:				for(;;) periodic_wake_wait(cos_spd_id());
+./implementation/no_interface/exe_periodic/exe_periodic.c:193:			periodic_wake_wait(cos_spd_id());
+./implementation/no_interface/exe_periodic/exe_periodic.c:202:	sched_block(cos_spd_id(), 0);
+./implementation/no_interface/lock_test/ltest.c:16:#define LOCK_TAKE()    lock_component_take(cos_spd_id(), lock, 0, TIMER_EVENT_INF)
+./implementation/no_interface/lock_test/ltest.c:17:#define LOCK_RELEASE() lock_component_release(cos_spd_id(), lock)
+./implementation/no_interface/lock_test/ltest.c:18:#define LOCK_INIT() do { lock = lock_component_alloc(cos_spd_id()); } while(0)
+./implementation/no_interface/lock_test/ltest.c:51:		timed_event_block(cos_spd_id(), 1);
+./implementation/no_interface/lock_test/ltest.c:92:		if (0 > (hp_thd = sched_create_thread(cos_spd_id(), data))) BUG();
+./implementation/no_interface/lock_test/ltest.c:106:	sched_block(cos_spd_id(), 0);
+./implementation/no_interface/cbufc_top/cbufc.c:14:	printc("\n****** TOP: thread %d in spd %ld ******\n",cos_get_thd_id(), cos_spd_id());
+./implementation/no_interface/cbufc_top/cbufc.c:16:	periodic_wake_create(cos_spd_id(), PERIODIC);
+./implementation/no_interface/cbufc_top/cbufc.c:23:	/* 	periodic_wake_wait(cos_spd_id()); */
+./implementation/no_interface/cbufc_top/cbufc.c:39:		periodic_wake_wait(cos_spd_id());
+./implementation/no_interface/stat/stat_gather.c:44:	len = l(cos_spd_id());
+./implementation/no_interface/stat/stat_gather.c:48:	while (NULL != (ret = f(cos_spd_id(), ss))) {
+./implementation/no_interface/stat/stat_gather.c:66:		timed_event_block(cos_spd_id(), STAT_FREQ);
+./implementation/no_interface/stat/stat_gather.c:79:	sched_block(cos_spd_id(), 0);
+./implementation/no_interface/cgi/persist_cgi.c:69:	sched_block(cos_spd_id(), 0);
+./implementation/no_interface/hlthd_test/hlthd_test.c:22:	if (0 > (event_thd = sched_create_thread(cos_spd_id(), data))) assert(0);
+./implementation/no_interface/hlthd_test/hlthd_test.c:47:		timed_event_block(cos_spd_id(), 9);
+./implementation/no_interface/hlthd_test/hlthd_test.c:54:			timed_event_block(cos_spd_id(), 1);
+./implementation/no_interface/hlthd_test/hlthd_test.c:59:		timed_event_block(cos_spd_id(), 9);
+./implementation/no_interface/hlthd_test/hlthd_test.c:73:	sched_block(cos_spd_id(), 0);
+./implementation/no_interface/mh_test/mhtest.c:14:	mman_get_page(cos_spd_id(), (vaddr_t)cos_get_heap_ptr(), MAPPING_RW);
+./implementation/no_interface/mh_test/mhtest.c:15:	mman_release_page(cos_spd_id(), (vaddr_t)cos_get_heap_ptr(), 0);
+./implementation/no_interface/mh_test/mhtest.c:21:		mman_get_page(cos_spd_id(), (vaddr_t)cos_get_heap_ptr(), MAPPING_RW);
+./implementation/no_interface/mh_test/mhtest.c:27:		mman_release_page(cos_spd_id(), (vaddr_t)cos_get_heap_ptr(), 0);
+./implementation/no_interface/mh_test/mhtest.c:37:void hack(void) { sched_block(cos_spd_id(), 0); }
+./implementation/no_interface/boot/boot_deps.h:16:#define LOCK()   if (sched_component_take(cos_spd_id())) BUG();
+./implementation/no_interface/boot/boot_deps.h:17:#define UNLOCK() if (sched_component_release(cos_spd_id())) BUG();
+./implementation/no_interface/boot/boot_deps.h:39:	    (__local_mman_alias_page(cos_spd_id(), cinfo_addr, spdid, map_addr, MAPPING_RW))) {
+./implementation/no_interface/boot/booter.c:183:			if ((vaddr_t)dsrc != __local_mman_get_page(cos_spd_id(), (vaddr_t)dsrc, MAPPING_RW)) BUG();
+./implementation/no_interface/boot/booter.c:184:			if (dest_daddr != (__local_mman_alias_page(cos_spd_id(), (vaddr_t)dsrc, spdid, dest_daddr, MAPPING_RW))) BUG();
+./implementation/no_interface/boot/booter.c:490:	if (cos_vas_cntl(COS_VAS_SPD_EXPAND, cos_spd_id(), 
+./implementation/no_interface/mpd_mgr/mpd_mgr.c:108:	timed_event_block(cos_spd_id(), 24);
+./implementation/no_interface/mpd_mgr/mpd_mgr.c:121:	timed_event_block(cos_spd_id(), 24);
+./implementation/no_interface/mpd_mgr/mpd_mgr.c:133:	timed_event_block(cos_spd_id(), 98);
+./implementation/no_interface/mpd_mgr/mpd_mgr.c:142:	timed_event_block(cos_spd_id(), 198);
+./implementation/no_interface/valloc_test/valloc_test.c:16:	a = valloc_alloc(cos_spd_id(), cos_spd_id(), 16);
+./implementation/no_interface/valloc_test/valloc_test.c:18:	b = valloc_alloc(cos_spd_id(), cos_spd_id(), 64);
+./implementation/no_interface/valloc_test/valloc_test.c:20:	c = valloc_alloc(cos_spd_id(), cos_spd_id(), 32);
+./implementation/no_interface/valloc_test/valloc_test.c:23:	valloc_free(cos_spd_id(), cos_spd_id(), b, 64);
+./implementation/no_interface/valloc_test/valloc_test.c:24:	valloc_free(cos_spd_id(), cos_spd_id(), a, 16);
+./implementation/no_interface/valloc_test/valloc_test.c:25:	valloc_free(cos_spd_id(), cos_spd_id(), c, 32);
+./implementation/no_interface/cinfo_test/citest.c:20:		if (cinfo_map(cos_spd_id(), (vaddr_t)hp, spdid)) {
+./implementation/no_interface/cinfo_test/citest.c:36:	sched_block(cos_spd_id(), 0);
+./implementation/no_interface/vas_test/vas_test.c:10:	a = vas_mgr_expand(cos_spd_id(), cos_spd_id(), SERVICE_SIZE*2);
+./implementation/no_interface/vas_test/vas_test.c:13:	t = mman_get_page(cos_spd_id(), a+SERVICE_SIZE, MAPPING_RW);
+./implementation/no_interface/vas_test/vas_test.c:23:	sched_block(cos_spd_id(), 0);
+./implementation/no_interface/net_rcv/rcv.c:15:	BUG_ON(netif_event_create(cos_spd_id()));
+./implementation/no_interface/net_rcv/rcv.c:18:		BUG_ON(netif_event_wait(cos_spd_id(), arr));
+./implementation/no_interface/net_rcv/rcv.c:26:	netif_event_release(cos_spd_id());
+./implementation/no_interface/net_rcv/rcv.c:29:void hack(void) { sched_block(cos_spd_id(), 0); }
+./implementation/no_interface/torrent_sconn_mt/conn_mgr.c:82:evt_wait_all(void) { return evt_wait(cos_spd_id(), evt_all[cos_get_thd_id()]); }
+./implementation/no_interface/torrent_sconn_mt/conn_mgr.c:93:	if (!evt_all[thdid]) evt_all[thdid] = evt_split(cos_spd_id(), 0, 1);
+./implementation/no_interface/torrent_sconn_mt/conn_mgr.c:97:		evt_split(cos_spd_id(), evt_all[thdid], 0) :
+./implementation/no_interface/torrent_sconn_mt/conn_mgr.c:110:	if (ncached >= EVT_CACHE_SZ) evt_free(cos_spd_id(), evtid);
+./implementation/no_interface/torrent_sconn_mt/conn_mgr.c:162:		from = from_tsplit(cos_spd_id(), accept_fd, "", 0, TOR_RW, feid);
+./implementation/no_interface/torrent_sconn_mt/conn_mgr.c:174:		to = tsplit(cos_spd_id(), td_root, "", 0, TOR_RW, teid);
+./implementation/no_interface/torrent_sconn_mt/conn_mgr.c:198:		amnt = from_tread(cos_spd_id(), from, cb, BUFF_SZ-1);
+./implementation/no_interface/torrent_sconn_mt/conn_mgr.c:207:		if (amnt != (ret = twrite(cos_spd_id(), to, cb, amnt))) {
+./implementation/no_interface/torrent_sconn_mt/conn_mgr.c:219:	from_trelease(cos_spd_id(), from);
+./implementation/no_interface/torrent_sconn_mt/conn_mgr.c:220:	trelease(cos_spd_id(), to);
+./implementation/no_interface/torrent_sconn_mt/conn_mgr.c:240:		amnt = tread(cos_spd_id(), to, cb, BUFF_SZ-1);
+./implementation/no_interface/torrent_sconn_mt/conn_mgr.c:249:		if (amnt != (ret = from_twrite(cos_spd_id(), from, cb, amnt))) {
+./implementation/no_interface/torrent_sconn_mt/conn_mgr.c:261:	from_trelease(cos_spd_id(), from);
+./implementation/no_interface/torrent_sconn_mt/conn_mgr.c:262:	trelease(cos_spd_id(), to);
+./implementation/no_interface/torrent_sconn_mt/conn_mgr.c:292:		thdid = sched_create_thd(cos_spd_id(), sp.v, 0, 0);
+./implementation/no_interface/torrent_sconn_mt/conn_mgr.c:336:	ret = c = from_tsplit(cos_spd_id(), td_root, __create_str, strlen(__create_str), TOR_ALL, eid);
+./implementation/no_interface/ping_membrane/ping_membrane.c:56:		if (sched_create_thd(cos_spd_id(), sp.v, 0, 0) == 0) BUG();
+./implementation/no_interface/blk/blk.c:19:		timed_event_block(cos_spd_id(), 100);
+./implementation/no_interface/blk/blk.c:26:	sched_block(cos_spd_id(), 0);
+./implementation/no_interface/timed_wkup/wakeup.c:11:	if (sched_timeout_thd(cos_spd_id())) BUG();
+./implementation/no_interface/timed_wkup/wakeup.c:15:		sched_timeout(cos_spd_id(), 1);
+./implementation/cbuf_mid/mid_level/cbuf_mid.c:29:	printc("\n****** MID: thread %d in spd %ld ******\n",cos_get_thd_id(), cos_spd_id());
+./implementation/cbuf_mid/mid_level/cbuf_mid.c:59:	printc("\n****** MID free: thread %d in spd %ld ******\n",cos_get_thd_id(), cos_spd_id());
+./implementation/pgfault/recov_poc/pgfault.c:57:	if ((int)ip == 1) failure_notif_wait(cos_spd_id(), spdid);
+./implementation/pgfault/recov_poc/pgfault.c:58:	else         failure_notif_fail(cos_spd_id(), spdid);
+./implementation/pgfault/stk_trace/pgfault.c:33:	if (stkmgr_stack_introspect(cos_spd_id(), (vaddr_t)stack, spdid, extern_addr)) BUG();
+./implementation/pgfault/stk_trace/pgfault.c:42:	mman_release_page(cos_spd_id(), (vaddr_t)stack, 0);
+./implementation/pgfault/stk_trace/pgfault.c:84:	assert(cos_spd_id() == cos_thd_cntl(COS_THD_INV_FRAME, tid, 0, 0));
+./implementation/static_content/fake_fs/static_content.c:56:	evt_trigger(cos_spd_id(), evt_id);
+./implementation/static_content/fake_fs/static_content.c:99:	sched_block(cos_spd_id(), 0);
+./implementation/static_content/map/static_content.c:86:	evt_trigger(cos_spd_id(), evt_id);
+./implementation/static_content/map/static_content.c:136:	sched_block(cos_spd_id(), 0);
+./implementation/valloc/simple/valloc.c:28:#define LOCK()   if (sched_component_take(cos_spd_id())) BUG();
+./implementation/valloc/simple/valloc.c:29:#define UNLOCK() if (sched_component_release(cos_spd_id())) BUG();
+./implementation/valloc/simple/valloc.c:80:	if (cinfo_map(cos_spd_id(), (vaddr_t)ci, spdid)) goto err_free2;
+./implementation/content_mux/content_mgr/content_mgr.c:214:	r->child_id = fns->open(cos_spd_id(), evt_id, data);
+./implementation/content_mux/content_mgr/content_mgr.c:233:	return r->fns->request(cos_spd_id(), r->child_id, data);
+./implementation/content_mux/content_mgr/content_mgr.c:248:	return r->fns->retrieve(cos_spd_id(), r->child_id, data, more);
+./implementation/content_mux/content_mgr/content_mgr.c:263:	return c(cos_spd_id(), r->child_id);
+./implementation/sched/cos_sched_base.c:732:	fp_block(thd, cos_spd_id());
+./implementation/sched/cos_sched_base.c:1186:		assert(dest_spd_id && (dest_spd_id != cos_spd_id()));
+./implementation/sched/cos_sched_base.c:1196:			parent_sched_child_thd_crt(cos_spd_id(), (spdid_t)(int)d);
+./implementation/sched/cos_sched_base.c:1222:	if (spdid == cos_spd_id()) return -1;
+./implementation/sched/cos_sched_base.c:1232:	       cos_cpuid(), (unsigned int)cos_spd_id(), new->id, spdid, curr->id);
+./implementation/sched/cos_sched_base.c:1310:	/*        cos_cpuid(), (unsigned int)cos_spd_id(), new->id, spdid, curr->id); */
+./implementation/sched/cos_sched_base.c:1322:	if (spdid == cos_spd_id()) return -1;
+./implementation/sched/cos_sched_base.c:1379:	       cos_cpuid(), (unsigned int)cos_spd_id(), new->id, spdid, sched_get_current()->id, spdid);
+./implementation/sched/cos_sched_base.c:1485:		parent_sched_child_thd_crt(cos_spd_id(), dest_spd);
+./implementation/sched/cos_sched_base.c:1498://	       (unsigned int)cos_spd_id(), tid, spdid);
+./implementation/sched/cos_sched_base.c:1681:			cont = parent_sched_child_get_evt(cos_spd_id(), e, should_idle, wake_diff);
+./implementation/sched/cos_sched_base.c:1753:	timer_thd = sched_setup_thread_arg(cos_spd_id(), &sp, fp_timer, 0, 1);
+./implementation/sched/cos_sched_base.c:1757:	acap = cos_async_cap_cntl(COS_ACAP_CREATE, cos_spd_id(), cos_spd_id(), timer_thd->id << 16 | timer_thd->id);
+./implementation/sched/cos_sched_base.c:1808:	ret = cos_async_cap_cntl(COS_ACAP_CREATE, cos_spd_id(), cos_spd_id(), cos_get_thd_id());
+./implementation/sched/cos_sched_base.c:1814:		printc("Scheduler %ld could not allocate acap for IPI handler %d.\n", cos_spd_id(), cos_get_thd_id());
+./implementation/sched/cos_sched_base.c:1859:	int spdid = cos_spd_id();
+./implementation/sched/cos_sched_base.c:1882:	PERCPU_GET(sched_base_state)->idle = sched_setup_thread_arg(cos_spd_id(), &sp, fp_idle_loop, 0, 1);
+./implementation/sched/cos_sched_base.c:2027:	if (parent_sched_child_cntl_thd(cos_spd_id())) BUG();
+./interface/mem_mgr/cos_alloc.c:83:	return valloc_alloc(cos_spd_id(), cos_spd_id(), 1);
+./interface/mem_mgr/cos_alloc.c:88:	valloc_free(cos_spd_id(), cos_spd_id(), p, 1);
+./interface/mem_mgr/cos_alloc.c:107:	hp = valloc_alloc(cos_spd_id(), cos_spd_id(), s/PAGE_SIZE);
+./interface/mem_mgr/cos_alloc.c:118:		ret = (void*)mman_get_page(cos_spd_id(), (void*)p, MAPPING_RW);
+./interface/mem_mgr/cos_alloc.c:121:				mman_release_page(cos_spd_id(), (void*)p, 0);
+./interface/mem_mgr/cos_alloc.c:124:			if (unlikely(valloc_free(cos_spd_id(), cos_spd_id(), hp, s/PAGE_SIZE))) DIE();
+./interface/mem_mgr/cos_alloc.c:132:	if (alloc_debug) printc("malloc in %d: mmapped region into %x", cos_spd_id(), ret);
+./interface/mem_mgr/cos_alloc.c:147:		  mman_release_page(cos_spd_id(), (void*)p, 0);
+./interface/mem_mgr/cos_alloc.c:149:	  if (valloc_free(cos_spd_id(), cos_spd_id(), addr, round_up_to_page(size)/PAGE_SIZE)) DIE();
+./interface/mem_mgr/cos_alloc.c:228:				cos_spd_id(), ptr, size, idx);
+./interface/mem_mgr/cos_alloc.c:247:					cos_spd_id(), _size, idx, __small_mem[idx]);
+./interface/mem_mgr/cos_alloc.c:274:						cos_spd_id(), ptr, size, idx, __small_mem[idx]);
+./interface/mem_mgr/cos_alloc.c:285:				cos_spd_id(), ptr, size, idx, __small_mem[idx]);
+./interface/cbuf_c/cbuf_vect.h:35:				new = (struct cvect_intern *)cbuf_c_register(cos_spd_id(), meta_to_cbid_idx(id));
+./interface/cbuf_c/cbuf_vect.h:37:				new = (struct cvect_intern *)cbufp_register(cos_spd_id(), meta_to_cbid_idx(id));			
+./interface/cbuf_c/cbuf_c.c:129:	if (tmem) ret = cbuf_c_retrieve(cos_spd_id(), cbid, len);
+./interface/cbuf_c/cbuf_c.c:130:	else      ret = cbufp_retrieve(cos_spd_id(), cbid, len);
+./interface/cbuf_c/cbuf_c.c:159:		amnt = cbufp_collect(cos_spd_id(), size, cb);
+./interface/cbuf_c/cbuf_c.c:199:		cbid = cbufp_create(cos_spd_id(), size, cbid*-1);
+./interface/cbuf_c/cbuf_c.c:226:			cbid = cbuf_c_create(cos_spd_id(), size, cbid*-1);
+./interface/par_mgr/parlib.c:122:	/*        cos_get_thd_id(), cos_cpuid(), cos_spd_id()); */
+./interface/par_mgr/parlib.c:123:	ret = sched_block(cos_spd_id(), 0);
+./interface/par_mgr/parlib.c:127:	curr->acap = par_srv_acap_lookup(cos_spd_id());
+./interface/par_mgr/parlib.c:130:	/*        cos_spd_id(), thd_id, acap); */
+./interface/par_mgr/parlib.c:132:	curr->shared_page = par_srv_ring_lookup(cos_spd_id());
+./interface/par_mgr/parlib.c:139:	ret = par_parent_lookup(cos_spd_id());
+./interface/par_mgr/parlib.c:158:	thd_info.thd_num = par_srv_thd_num_lookup(cos_spd_id());
+./interface/par_mgr/parlib.c:187:			       cos_get_thd_id(), cos_spd_id());
+./interface/par_mgr/parlib.c:249:		acap = acap_cli_lookup(cos_spd_id(), cap_id, COS_STATIC_THD_ENTRY(0));
+./interface/par_mgr/parlib.c:253:			curr_cap->shared_page = acap_cli_lookup_ring(cos_spd_id(), cap_id);
+./interface/mem_mgr_large/cos_alloc.c:83:	return valloc_alloc(cos_spd_id(), cos_spd_id(), 1);
+./interface/mem_mgr_large/cos_alloc.c:88:	valloc_free(cos_spd_id(), cos_spd_id(), p, 1);
+./interface/mem_mgr_large/cos_alloc.c:107:	hp = valloc_alloc(cos_spd_id(), cos_spd_id(), s/PAGE_SIZE);
+./interface/mem_mgr_large/cos_alloc.c:118:		ret = (void*)mman_get_page(cos_spd_id(), (void*)p, MAPPING_RW);
+./interface/mem_mgr_large/cos_alloc.c:121:				mman_release_page(cos_spd_id(), (void*)p, 0);
+./interface/mem_mgr_large/cos_alloc.c:124:			if (unlikely(valloc_free(cos_spd_id(), cos_spd_id(), hp, s/PAGE_SIZE))) DIE();
+./interface/mem_mgr_large/cos_alloc.c:132:	if (alloc_debug) printc("malloc in %d: mmapped region into %x", cos_spd_id(), ret);
+./interface/mem_mgr_large/cos_alloc.c:144:		mman_release_page(cos_spd_id(), (void*)p, 0);
+./interface/mem_mgr_large/cos_alloc.c:146:	if (valloc_free(cos_spd_id(), cos_spd_id(), addr, round_up_to_page(size)/PAGE_SIZE)) DIE();
+./interface/mem_mgr_large/cos_alloc.c:224:				cos_spd_id(), ptr, size, idx);
+./interface/mem_mgr_large/cos_alloc.c:243:					cos_spd_id(), _size, idx, __small_mem[idx]);
+./interface/mem_mgr_large/cos_alloc.c:270:						cos_spd_id(), ptr, size, idx, __small_mem[idx]);
+./interface/mem_mgr_large/cos_alloc.c:281:				cos_spd_id(), ptr, size, idx, __small_mem[idx]);
+./interface/lock/cos_synchronization.c:29:	spdid_t spdid   = cos_spd_id();
+./interface/lock/cos_synchronization.c:61:	if (lock_component_release(cos_spd_id(), lock_id)) return -1;
+./interface/lock/cos_synchronization.c:91:	lock_component_free(cos_spd_id(), l->lock_id);
+./interface/printt/printt.c:19:	init = print_tsplit(cos_spd_id(), td_root, pchan, strlen(pchan), TOR_WRITE, 0);
+./interface/printt/printt.c:40:	print_twrite(cos_spd_id(), tor, cb, ret);
+./interface/sched/cos_thd_creation.h:107:	if (spdid == cos_spd_id() || idx >= COS_THD_INIT_REGION_SIZE || idx <= 0) return 0;
+./interface/sched/cos_thd_creation.h:120:	int spdid = cos_spd_id();
