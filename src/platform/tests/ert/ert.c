@@ -3,11 +3,14 @@
 #include <malloc.h>
 #include <assert.h>
 
+typedef unsigned char      u8_t;
 typedef unsigned short int u16_t;
-typedef unsigned int u32_t;
+typedef unsigned int       u32_t;
 #define unlikely(x)     __builtin_expect(!!(x), 0)
 #define LINUX_TEST
 #include <kvtrie.h>
+#define CAPTBL_ALLOCFN ct_alloc
+#include <captbl.h>
 
 #define NTESTS (4096)
 
@@ -27,31 +30,33 @@ int in_pairs(struct pair *ps, int len, long id)
 int alloc_cnt = 0;
 #include <sys/mman.h>
 static void *
-unit_allocfn(void *d, int sz, int leaf) 
+unit_allocfn(void *d, int sz, int last_lvl) 
 { 
 	int *mem = d;
-	(void)d; (void)leaf;
+	void *r;
+	(void)d; (void)last_lvl;
 	alloc_cnt++;
 	if (mem) {
 		assert(*mem == 0);
 		*mem = 1;
 	}
-	return malloc(sz);
-	//return mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	//return malloc(sz);
+	r = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	return r;//mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 }
 
 static void 
-unit_freefn(void *d, void *m, int sz, int leaf) 
+unit_freefn(void *d, void *m, int sz, int last_lvl) 
 { 
-	(void)d; (void)leaf; (void)sz;
+	(void)d; (void)last_lvl; (void)sz;
 	alloc_cnt--;
-	free(m);
-	//munmap(m, sz);
+	//free(m);
+	munmap(m, sz);
 }
 
-KVT_CREATE_DEF(unit,  2, 12, 8, unit_allocfn, unit_freefn);
-KVT_CREATE_DEF(unit2, 3, 6, 12, unit_allocfn, unit_freefn);
-KVT_CREATE_DEF(unit3, 4, 5, 5, unit_allocfn, unit_freefn);
+KVT_CREATE(unit,  2, 12, 8, unit_allocfn, unit_freefn);
+KVT_CREATE(unit2, 3, 6, 12, unit_allocfn, unit_freefn);
+KVT_CREATE(unit3, 4, 5, 5, unit_allocfn, unit_freefn);
 
 ERT_CREATE_DEF(unit4, 3, 8, 4, 64, unit_allocfn);
 ERT_CREATE_DEF(unit5, 1, 0, 14, 32, unit_allocfn);
@@ -98,8 +103,8 @@ typedef void *(*lkupan_fn_t)(struct ert *v, unsigned long id, int dlimit, unsign
 typedef int (*expandn_fn_t)(struct ert *v, unsigned long id, u32_t dlimit, unsigned long *accum, void *memctxt);
 typedef int (*expand_fn_t)(struct ert *v, unsigned long id, unsigned long *accum, void *memctxt);
 
-void 
-kv_test(int max, alloc_fn_t a, free_fn_t f, lkupp_fn_t lp, add_fn_t add, del_fn_t d, 
+void
+kv_test(int max, alloc_fn_t a, free_fn_t f, lkupp_fn_t lp, add_fn_t add, del_fn_t d,
 	lkup_fn_t l, lkupa_fn_t la, lkupan_fn_t lan, expandn_fn_t en, expand_fn_t e)
 {
 	(void)l; (void)la; (void)lan; (void)en; (void)e;
@@ -114,6 +119,7 @@ kv_test(int max, alloc_fn_t a, free_fn_t f, lkupp_fn_t lp, add_fn_t add, del_fn_
 			pairs[i].id = rand() % max;
 		} while (in_pairs(pairs, i-1, pairs[i].id));
 		pairs[i].val = malloc(10);
+		*(unsigned int*)pairs[i].val = 0xDEADBEEF;
 		assert(!add(dyn_vect, pairs[i].id, pairs[i].val));
 		assert(lp(dyn_vect, pairs[i].id) == pairs[i].val);
 	}
@@ -129,7 +135,9 @@ kv_test(int max, alloc_fn_t a, free_fn_t f, lkupp_fn_t lp, add_fn_t add, del_fn_
 	f(dyn_vect);
 }
 
-void ert_test(int max, int depth, alloc_fn_t a, lkup_fn_t l, lkupa_fn_t la, lkupan_fn_t lan, expandn_fn_t en, expand_fn_t e)
+void
+ert_test(int max, int depth, alloc_fn_t a, lkup_fn_t l, lkupa_fn_t la, 
+	 lkupan_fn_t lan, expandn_fn_t en, expand_fn_t e)
 {
 	(void)l; (void)la; (void)lan; (void)e;
 	struct pair pairs[NTESTS];
@@ -170,6 +178,98 @@ void ert_test(int max, int depth, alloc_fn_t a, lkup_fn_t l, lkupa_fn_t la, lkup
 	}
 }
 
+void *do_captbllkups(struct captbl *ct, unsigned long id)
+{
+	void *r;
+
+	__asm__("nop; nop; nop");
+	r = captbl_lkup(ct, id);
+	__asm__("nop; nop; nop");
+	return r;
+}
+
+void 
+ct_test(void)
+{
+	struct captbl *ct;
+	char *p = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	char *p1 = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	int ret;
+	struct cap_header *c;
+
+	assert(p);
+	ct = captbl_alloc(p);
+	assert(ct);
+	ret = captbl_expand(ct, 0, captbl_maxdepth(), p+(PAGE_SIZE/2));
+	assert(!ret);
+	c = captbl_lkup(ct, 0);
+	assert(!c);
+	c = captbl_add(ct, 0, CAP_THD, &ret);
+	assert(c && ret == 0 && c == (void*)(p+(PAGE_SIZE/2)));
+	c++;
+	*(int*)c = 1;
+	c = captbl_lkup(ct, 0);
+	assert(c && c == (void*)(p+(PAGE_SIZE/2)));
+	c++;
+	assert(*(int*)c == 1);
+	c = captbl_add(ct, 1, CAP_SCOMM, &ret);
+	assert(!c && ret != 0);
+	ret = captbl_del(ct, 0);
+	assert(!ret);
+	assert(!captbl_lkup(ct, 0));
+	c = captbl_add(ct, 2, CAP_SCOMM, &ret);
+	assert(c && ret == 0);
+	assert(c == captbl_lkup(ct, 2));
+	c = captbl_add(ct, 0, CAP_SCOMM, &ret);
+	assert(c && ret == 0);
+	assert(c == captbl_lkup(ct, 0));
+	c = captbl_add(ct, 1, CAP_THD, &ret);
+	assert(!c && ret != 0);
+
+	/* test another cache line in the same last-level lookup table */
+	c = captbl_add(ct, 4, CAP_THD, &ret);
+	assert(c && ret == 0);
+	assert(c == captbl_lkup(ct, 4));
+	c = captbl_add(ct, 4, CAP_THD, &ret);
+	assert(!c && ret != 0);
+	c = captbl_add(ct, 6, CAP_SCOMM, &ret);
+	assert(!c && ret != 0);
+	ret = captbl_del(ct, 4);
+	assert(!ret);
+	assert(!captbl_lkup(ct, 4));
+	assert(!captbl_lkup(ct, 6));
+	c = captbl_add(ct, 6, CAP_SCOMM, &ret);
+	assert(c && ret == 0);
+	assert(c == captbl_lkup(ct, 6));
+	c++;
+	*(int*)c = 1;
+	c = captbl_lkup(ct, 6);
+	assert(c);
+	c++;
+	assert(*(int*)c == 1);
+	c = captbl_add(ct, 4, CAP_SCOMM, &ret);
+	assert(c && ret == 0);
+
+	/* test upper-level lookup failure */
+	c = captbl_add(ct, 1<<9, CAP_SCOMM, &ret);
+	assert(!c && ret != 0);
+	c = captbl_add(ct, 1<<30, CAP_SCOMM, &ret);
+	assert(!c && ret != 0);
+	ret = captbl_expand(ct, (1<<9) + 20, captbl_maxdepth(), p1);
+	assert(!ret);
+	c = captbl_add(ct, 1<<9, CAP_SCOMM, &ret);
+	assert(c && ret == 0);
+
+	ret = captbl_expand(ct, (1<<9) * 4 + 3, captbl_maxdepth(), p1+(PAGE_SIZE/2));
+	assert(!ret);
+	c = captbl_add(ct, (1<<9)*4+60, CAP_SCOMM, &ret);
+	assert(c && ret == 0);
+	assert(c == captbl_lkup(ct, (1<<9)*4+60));
+	ret = captbl_del(ct, (1<<9)*4+60);
+	assert(!ret);
+	assert(c);
+}
+
 int 
 main(void)
 {
@@ -193,5 +293,9 @@ main(void)
 		 (lkupan_fn_t)unit5_lkupan, (expandn_fn_t)unit5_expandn, (expand_fn_t)unit5_expand);
 	printf("\tSUCCESS\n");
 
+	printf("captbl tests:\n");
+	ct_test();
+	printf("\tSUCCESS\n");
+	
 	return 0;
 }
