@@ -15,6 +15,7 @@ static cos_lock_t fs_lock;
 #define META_OFFSET     "offset"
 #define META_FLAGS      "flags"
 #define META_EVTID      "evtid"
+#define META_LEN	"len"
 
 /* Default torrent implementations */
 __attribute__((weak)) int
@@ -37,11 +38,13 @@ trmeta(spdid_t spdid, td_t td, const char *key, unsigned int klen, char *retval,
         /* spdid is not used ? */
 
         struct torrent *t;
+	//struct fsobj *fso;
 
         LOCK();
         t = tor_lookup(td);
         if (!t) {UNLOCK(); return -1;} // we need to have a unified return point which include an UNLOCK()
-
+	
+	//fso = t->data;
         if (strlen(key) != klen) return -1;
 
         if (strncmp(key, META_TD, klen) == 0) {
@@ -56,6 +59,9 @@ trmeta(spdid_t spdid, td_t td, const char *key, unsigned int klen, char *retval,
         else if (strncmp(key, META_EVTID, klen) == 0) {
                 sprintf(retval, "%ld", t->evtid);
         }
+	//else if (strncmp(key, META_LEN, klen) == 0 ) {
+	//	sprintf(retval, "%d", fso->size);
+	//}
         else {UNLOCK(); return -1;}
 
         UNLOCK();

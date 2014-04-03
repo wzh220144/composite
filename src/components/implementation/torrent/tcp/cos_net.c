@@ -1630,6 +1630,14 @@ static int init(void)
 	return 0;
 }
 
+/* Current not support */
+int
+tsize(spdid_t spdid, td_t td) {
+        struct torrent *t;
+        int ret=-1;
+        return ret;
+}
+
 void cos_init(void *arg)
 {
 	static volatile int first = 1;

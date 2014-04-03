@@ -148,6 +148,14 @@ done:
 	return ret;
 }
 
+/* Current not support */
+int
+tsize(spdid_t spdid, td_t td) {
+        struct torrent *t;
+        int ret=-1;
+        return ret;
+}
+
 void cos_init(void)
 {
 	torlib_init();

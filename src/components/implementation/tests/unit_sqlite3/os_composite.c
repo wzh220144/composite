@@ -74,6 +74,7 @@ struct ComFile {
 	char *aBuffer;		/* Pointer to malloc'd buffer */
 	int nBuffer;		/* Valid bytes of data in zBuffer */
 	sqlite3_int64 iBufferOfst;	/* Offset in file of zBuffer[0] */
+	//sqlite3_int64 file_size;	/* Size of file */
 };
 
 /*
@@ -283,10 +284,7 @@ static int comFileSize(sqlite3_file *pFile, sqlite_int64 *pSize){
 	prints("comFileSize\n");
 	ComFile *p = (ComFile*)pFile;
 	int rc;				/* Return code from tremta() */
-	char stat[30];			/* Return char * from trmeta() */
 	int i;				/* Iterator variable */
-	char flags[10]="flags";
-
 	/* Flush the contents of the buffer to disk. As with the flush in the
 	** comRead() method, it would be possible to avoid this and save a write
 	** here and there. But in practice this comes up so infrequently it is
@@ -297,19 +295,12 @@ static int comFileSize(sqlite3_file *pFile, sqlite_int64 *pSize){
 	if( rc!=SQLITE_OK ){
 		return rc;
 	}
-
-	rc = trmeta(cos_spd_id(), p->fd, flags, strlen(flags), stat, 30);
-	printv("rc: %d\n", rc);
-	if( rc == -1 )
-		return SQLITE_IOERR_FSTAT;
-	for(i=0; i<30; i++) {
-		if( (stat[i]<'0') || (stat[i]>'9') )
-			break;
+	rc = tsize(cos_spd_id(), p->fd);
+	if( rc==-1) {
+		return SQLITE_IOERR;
 	}
-	if(i==30)
-		i--;
-	stat[i]='\0';
-	*pSize = atoi(stat);
+	*pSize = rc;
+	printv("file_size: %d\n", rc);
 	return SQLITE_OK;
 }
 
@@ -671,15 +662,54 @@ int sqlite3_os_end(void){
 	return SQLITE_OK; 
 }
 
+int callback(void * a, int count, char ** value, char **name) {
+	int i;
+	for(i=0; i<count; i++) {
+		printf("%s %s\n", value[i], name[i]);
+	}
+	return 0;
+}
+
 void cos_init(void) {
+
 	prints("cos_init\n");
 	sqlite3 *db = NULL;
+	char *sql=NULL;
 	int rc = sqlite3_open("test.db", &db);
+	char *errmsg=0;
+	char *output;
+	int result;
 	if(rc) {
 		printc("Cannot open database: %s\n", sqlite3_errmsg(db));
 		sqlite3_close(db);
 		return ;
 	}
 	printc("Fuck!!!\nHave opened sqlite file in composite successfully!!!\n");
+	sql = "create table table_1( ID integer primary key autoincrement, Username nvarchar(32), PassWord nvarchar(32))";
+	result = sqlite3_exec( db, sql, 0, 0, &errmsg);
+	if(result != SQLITE_OK ) {
+		printc("Fail to create table_1: %d mesg:%s\n", result, errmsg);
+		sqlite3_free(errmsg);
+	}
+	sql="insert into table_1 values('wzh1', 'wzh1')";
+	result = sqlite3_exec( db, sql, 0, 0, &errmsg );
+	if(result != SQLITE_OK ) {
+		printc("Fail to insert user wzh1: %d mesg:%s\n", result, errmsg);
+		sqlite3_free(errmsg);
+	}
+	sql="insert into table_1 values('wzh2', 'wzh2')";
+	result = sqlite3_exec( db, sql, 0, 0, &errmsg );
+	if(result != SQLITE_OK ) {
+		printc("Fail to inster user wzh2: %d mesg:%s\n", result, errmsg);
+		sqlite3_free(errmsg);
+	}
+	sql = "select * from table_1";
+	result = sqlite3_exec( db, sql, callback, NULL, &errmsg );
+	if(result != SQLITE_OK ) {
+		printc("Fail to select: %d mesg:%s\n", result, errmsg);
+		sqlite3_free(errmsg);
+	}
+	sqlite3_close(db);
+	printc("Have closed sqlite3 file in composite successfully!!!\n");
 	return;
 }

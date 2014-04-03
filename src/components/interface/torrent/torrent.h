@@ -33,6 +33,7 @@ int twrite(spdid_t spdid, td_t td, int cbid, int sz);
 int twritep(spdid_t spdid, td_t td, int cbid, int sz);
 int trmeta(spdid_t spdid, td_t td, const char *key, unsigned int klen, char *retval, unsigned int max_rval_len);
 int twmeta(spdid_t spdid, td_t td, const char *key, unsigned int klen, const char *val, unsigned int vlen);
+int tsize(spdid_t spdid, td_t td);
 
 static inline int
 tread_pack(spdid_t spdid, td_t td, char *data, int len)

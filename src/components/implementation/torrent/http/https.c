@@ -914,6 +914,14 @@ unlock:
 
 #define HTTP_REPORT_FREQ 100
 
+/* Current not support for http */
+int
+tsize(spdid_t spdid, td_t td) {
+        struct torrent *t;
+        int ret=-1;
+        return ret;
+}
+
 void cos_init(void *arg)
 {
 	torlib_init();

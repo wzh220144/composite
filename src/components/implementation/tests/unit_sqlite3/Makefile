@@ -2,7 +2,7 @@ C_OBJS=os_composite.o
 ASM_OBJS=
 COMPONENT=sqlite3.o
 INTERFACES=
-DEPENDENCIES=sched printc timed_blk torrent cbufp cbuf_c evt mem_mgr_large valloc lock
+DEPENDENCIES=sched printc timed_blk cbufp cbuf_c torrent evt mem_mgr_large valloc lock
 IF_LIB=./cos_libccv.a $(DIETDIR)/bin-i386/libm.a ./libsqlite3.a
 OBJLIBS += $(POSIX_LIB)
 

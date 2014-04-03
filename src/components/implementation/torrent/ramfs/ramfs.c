@@ -62,6 +62,21 @@ free:
 	goto done;
 }
 
+int
+tsize(spdid_t spdid, td_t td) {
+	struct torrent *t;
+	struct fsobj *fso;
+	int ret=-1;
+	LOCK();
+	t = tor_lookup(td);
+	if (!t) ERR_THROW(-EINVAL, done);
+        fso = t->data;
+	ret = fso->size;
+done:
+	UNLOCK();
+	return ret;
+}
+
 int 
 tmerge(spdid_t spdid, td_t td, td_t td_into, char *param, int len)
 {
