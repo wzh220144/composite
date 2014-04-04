@@ -524,8 +524,7 @@ static int comOpen(
 		oflags |= O_RDONLY;
 	if( flags&SQLITE_OPEN_READWRITE )
 		oflags |= O_RDWR;*/
-	oflags |= TOR_ALL;	//do not support unix file flags, this is composite torrent flags
-
+	
 	memset(p, 0, sizeof(ComFile));
 	p->pid = cos_spd_id();
 	if(zName[0]=='/') {
@@ -546,7 +545,7 @@ static int comOpen(
 	p->iBufferOfst = 0;
 
 	if( pOutFlags ){
-		*pOutFlags = TOR_ALL;
+		*pOutFlags = flags;
 	}
 	p->base.pMethods = &comio;
 	printv("rc: %d\n", SQLITE_OK);
@@ -560,10 +559,12 @@ static int comOpen(
 */
 static int comDelete(sqlite3_vfs *pVfs, const char *zPath, int dirSync){
 	prints("comDelete\n");
-	int rc;                         /* Return code */
+	int rc=-1;                         /* Return code */
 	td_t fd = find_hash_node(zPath, strlen(zPath));
 	printv("fd: %d\n", fd);
-	rc = tmerge(cos_spd_id(), td_root, td_null, zPath, strlen(zPath));
+	if(fd==-1)
+		return SQLITE_OK;
+	rc = tmerge(cos_spd_id(), fd, td_null, zPath, strlen(zPath));
 	if( (rc == -1) && (errno == ENOENT) ) {
 		printv("rc: %d\n", (rc==-1)&&(errno==ENOENT));
 		return SQLITE_OK;
@@ -633,8 +634,8 @@ static int comAccess(
 	if( flags==SQLITE_ACCESS_READ )
 		eAccess = R_OK;
 
-	rc = access(zPath, eAccess);
-	*pResOut = (rc==0);*/
+	rc = access(zPath, eAccess);*/
+	*pResOut = 1;
 	printv("rc: %d\n", SQLITE_OK);
 	return SQLITE_OK;
 }
@@ -817,24 +818,28 @@ void cos_init(void) {
 		printc("Fail to create table_1: %d mesg:%s\n", result, errmsg);
 		sqlite3_free(errmsg);
 	}
-	sql="insert into table_1 values('wzh1', 'wzh1')";
+	free(sql);
+	sql="insert into table_1 values(1, 'wzh1', 'wzh1')";
 	result = sqlite3_exec( db, sql, 0, 0, &errmsg );
 	if(result != SQLITE_OK ) {
 		printc("Fail to insert user wzh1: %d mesg:%s\n", result, errmsg);
 		sqlite3_free(errmsg);
 	}
-	sql="insert into table_1 values('wzh2', 'wzh2')";
+	free(sql);
+	sql="insert into table_1 values(2, 'wzh2', 'wzh2')";
 	result = sqlite3_exec( db, sql, 0, 0, &errmsg );
 	if(result != SQLITE_OK ) {
 		printc("Fail to inster user wzh2: %d mesg:%s\n", result, errmsg);
 		sqlite3_free(errmsg);
 	}
+	free(sql);
 	sql = "select * from table_1";
 	result = sqlite3_exec( db, sql, callback, NULL, &errmsg );
 	if(result != SQLITE_OK ) {
 		printc("Fail to select: %d mesg:%s\n", result, errmsg);
 		sqlite3_free(errmsg);
 	}
+	free(sql);
 	sqlite3_close(db);
 	printc("Have closed sqlite3 file in composite successfully!!!\n");
 	return;
