@@ -23,6 +23,9 @@
 **   2. Absolute paths begin with any character except '/'.
 */
 
+#ifndef __SQLITE__
+#define __SQLITE__
+
 #include <cos_component.h>
 #include <print.h>
 #include <sched.h>
@@ -59,6 +62,111 @@
 */
 #define MAXPATHNAME 512
 
+#define DEF_HASH_NUM 41		//the size of hash_node
+typedef struct hash hash;
+struct hash {
+	hash *pre;
+	hash *next;
+	td_t fd;
+	char *path;
+};
+
+hash *hash_node[DEF_HASH_NUM];
+
+int find_hash_id(char *path, int len) {
+	int ret=-1;
+	int i;
+	if( strlen(path) !=len )
+		return ret;
+	ret=0;
+	for(i=0; i<len; i++) {
+		ret*=path[i];
+		ret%=DEF_HASH_NUM;
+	}
+	return ret;
+}
+
+int add_hash_node(td_t fd, char *path, int len) {
+	int ret=-1;
+	int id;
+	if( len != strlen(path) )
+		return ret;
+	hash *thash = (hash *)malloc(sizeof(hash));
+	thash->fd = fd;
+	thash->path = malloc(len*sizeof(char));
+	memcpy(path, thash->path, len);
+	ret = find_hash_id(path, len);
+	if(ret==-1)
+		return ret;
+	id = ret;
+	if(hash_node[id]==NULL) {
+		hash_node[id]=thash;
+		thash->next = thash;
+		thash->pre = thash;
+	}
+	else {
+		thash->pre=hash_node[id];
+		thash->next=hash_node[id]->next;
+		hash_node[id]->next->pre=thash;
+		hash_node[id]->next=thash;
+	}
+	return 0;
+}
+
+td_t find_hash_node(char *path, int len) {
+	hash *thash;
+	int ret=-1;
+	int id;
+	td_t fd=-1;
+        if( len != strlen(path) )
+                return fd;
+        ret = find_hash_id(path, len);
+	if(ret==-1)
+		return fd;
+	id=ret;
+	thash = hash_node[id];
+	while(thash!=NULL) {
+		if(strcmp(thash->path, path)==0) {
+			fd = thash->fd;
+			break;
+		}
+		if(thash->next == hash_node[id])
+			break;
+	}
+	return fd;
+}
+
+int delete_hash_node(td_t fd, char *path, int len) {
+	hash *thash;
+        int ret=-1;
+        int id;
+        if( len != strlen(path) )
+                return ret;
+        ret = find_hash_id(path, len);
+        if(ret==-1)
+                return ret;
+	id = ret;
+	ret = -1;
+	thash = hash_node[id];
+	while(thash!=NULL) {
+		if(thash->fd == fd) {
+			if(thash->next == thash) {
+				hash_node[id] = NULL;
+				free(thash);
+			}
+			else {
+				thash->pre->next=thash->next;
+				thash->next->pre=thash->pre;
+				free(thash);
+			}
+			ret=0;
+		}
+		if(thash->next == hash_node[id])
+			break;
+	}
+	return ret;
+}
+
 /*
 ** When using this VFS, the sqlite3_file* handles that SQLite uses are
 ** actually pointers to instances of type ComFile.
@@ -76,6 +184,7 @@ struct ComFile {
 	sqlite3_int64 iBufferOfst;	/* Offset in file of zBuffer[0] */
 	//sqlite3_int64 file_size;	/* Size of file */
 };
+
 
 /*
 ** Write directly to the file passed as the first argument. Even if the
@@ -414,6 +523,7 @@ static int comOpen(
 	}
 	p->evtid = evt;
 	p->fd = tsplit(p->pid, td_root, zName, strlen(zName), TOR_ALL, p->evtid);
+	add_hash_node(p->fd, zName, strlen(zName));
 	printv("fd: %d\n", p->fd);
 	if( p->fd == -1 ){
 		sqlite3_free(aBuf);
@@ -440,12 +550,13 @@ static int comOpen(
 static int comDelete(sqlite3_vfs *pVfs, const char *zPath, int dirSync){
 	prints("comDelete\n");
 	int rc;                         /* Return code */
-
-	rc = tmerge(cos_spd_id(), td_root, td_null, zPath, strlen(zPath));
+	td_t fd = find_hash_node(zPath, strlen(zPath));
+	rc = tmerge(cos_spd_id(), fd, td_null, "", 0);
 	if( (rc == -1) && (errno == ENOENT) ) {
 		printv("rc: %d\n", (rc==-1)&&(errno==ENOENT));
 		return SQLITE_OK;
 	}
+	delete_hash_node(fd, zPath, strlen(zPath));
 
 	//do not need dirSync, becasue the file is in cache, do not need to be synced
 	//if( rc==0 && dirSync ){
@@ -713,3 +824,5 @@ void cos_init(void) {
 	printc("Have closed sqlite3 file in composite successfully!!!\n");
 	return;
 }
+
+#endif
