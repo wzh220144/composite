@@ -78,7 +78,7 @@ int find_hash_id(char *path, int len) {
 	int i;
 	if( strlen(path) !=len )
 		return ret;
-	ret=0;
+	ret=1;
 	for(i=0; i<len; i++) {
 		ret*=path[i];
 		ret%=DEF_HASH_NUM;
@@ -87,15 +87,18 @@ int find_hash_id(char *path, int len) {
 }
 
 int add_hash_node(td_t fd, char *path, int len) {
+	prints("add_hash_node\n");
 	int ret=-1;
 	int id;
+	printv("len: %d path: %d\n", len, strlen(path));
 	if( len != strlen(path) )
 		return ret;
 	hash *thash = (hash *)malloc(sizeof(hash));
 	thash->fd = fd;
 	thash->path = malloc(len*sizeof(char));
-	memcpy(path, thash->path, len);
+	memcpy(thash->path, path, len);
 	ret = find_hash_id(path, len);
+	printv("ret: %d\n", ret);
 	if(ret==-1)
 		return ret;
 	id = ret;
@@ -110,10 +113,13 @@ int add_hash_node(td_t fd, char *path, int len) {
 		hash_node[id]->next->pre=thash;
 		hash_node[id]->next=thash;
 	}
+	printv("%d %d %d\n", hash_node[id], hash_node[id]->next, hash_node[id]->pre);
+	printv("fd: %d\n", hash_node[id]->fd);
 	return 0;
 }
 
 td_t find_hash_node(char *path, int len) {
+	prints("find_hash_node\n");
 	hash *thash;
 	int ret=-1;
 	int id;
@@ -123,6 +129,8 @@ td_t find_hash_node(char *path, int len) {
         ret = find_hash_id(path, len);
 	if(ret==-1)
 		return fd;
+	printv("%s\n", path);
+        printv("ret: %d\n", ret);
 	id=ret;
 	thash = hash_node[id];
 	while(thash!=NULL) {
@@ -137,12 +145,15 @@ td_t find_hash_node(char *path, int len) {
 }
 
 int delete_hash_node(td_t fd, char *path, int len) {
+	prints("delete_hash_node\n");
 	hash *thash;
         int ret=-1;
         int id;
         if( len != strlen(path) )
                 return ret;
         ret = find_hash_id(path, len);
+	printv("%s\n", path);
+	printv("ret: %d\n", ret);
         if(ret==-1)
                 return ret;
 	id = ret;
@@ -551,7 +562,8 @@ static int comDelete(sqlite3_vfs *pVfs, const char *zPath, int dirSync){
 	prints("comDelete\n");
 	int rc;                         /* Return code */
 	td_t fd = find_hash_node(zPath, strlen(zPath));
-	rc = tmerge(cos_spd_id(), fd, td_null, "", 0);
+	printv("fd: %d\n", fd);
+	rc = tmerge(cos_spd_id(), td_root, td_null, zPath, strlen(zPath));
 	if( (rc == -1) && (errno == ENOENT) ) {
 		printv("rc: %d\n", (rc==-1)&&(errno==ENOENT));
 		return SQLITE_OK;
@@ -783,6 +795,9 @@ int callback(void * a, int count, char ** value, char **name) {
 
 void cos_init(void) {
 
+	int i;
+	for(i=0; i<DEF_HASH_NUM; i++)
+		hash_node[i]=NULL;
 	prints("cos_init\n");
 	sqlite3 *db = NULL;
 	char *sql=NULL;

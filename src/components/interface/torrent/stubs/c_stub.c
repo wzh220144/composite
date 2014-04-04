@@ -45,7 +45,7 @@ CSTUB_FN_ARGS_5(int, tmerge, spdid_t, spdid, td_t, td, td_t, td_into, char *, pa
 	int sz = len + sizeof(struct __sg_tmerge_data);
 
         assert(param && len > 0);
-	assert(param[len-1] == '\0');
+	assert(param[len] == '\0');
 
 	d = cbuf_alloc(sz, &cb);
 	if (!d) return -1;
