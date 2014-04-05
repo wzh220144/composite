@@ -12,7 +12,7 @@
 #include <evt.h>
 #include <torrent.h>
 
-//#define VERBOSE 1
+#define VERBOSE 1
 #ifdef VERBOSE
 #define printv(fmt,...) printc(fmt, ##__VA_ARGS__)
 #else

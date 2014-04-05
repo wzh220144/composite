@@ -41,7 +41,7 @@
 #include <evt.h>
 #include <stdlib.h>
 
-#define VERBOSE 1
+//#define VERBOSE 1
 #ifdef VERBOSE
 #define printv(fmt,...) printc(fmt, ##__VA_ARGS__)
 #define prints(fmt) printc(fmt)
@@ -95,10 +95,10 @@ int add_hash_node(td_t fd, char *path, int len) {
 		return ret;
 	hash *thash = (hash *)malloc(sizeof(hash));
 	thash->fd = fd;
-	thash->path = malloc(len*sizeof(char));
+	thash->path = malloc((len+1)*sizeof(char));
 	memcpy(thash->path, path, len);
+	thash->path[len]='\0';
 	ret = find_hash_id(path, len);
-	printv("ret: %d\n", ret);
 	if(ret==-1)
 		return ret;
 	id = ret;
@@ -108,13 +108,11 @@ int add_hash_node(td_t fd, char *path, int len) {
 		thash->pre = thash;
 	}
 	else {
-		thash->pre=hash_node[id];
-		thash->next=hash_node[id]->next;
-		hash_node[id]->next->pre=thash;
-		hash_node[id]->next=thash;
+		thash->pre = hash_node[id];
+		thash->next = hash_node[id]->next;
+		hash_node[id]->next->pre = thash;
+		hash_node[id]->next = thash;
 	}
-	printv("%d %d %d\n", hash_node[id], hash_node[id]->next, hash_node[id]->pre);
-	printv("fd: %d\n", hash_node[id]->fd);
 	return 0;
 }
 
@@ -129,8 +127,6 @@ td_t find_hash_node(char *path, int len) {
         ret = find_hash_id(path, len);
 	if(ret==-1)
 		return fd;
-	printv("%s\n", path);
-        printv("ret: %d\n", ret);
 	id=ret;
 	thash = hash_node[id];
 	while(thash!=NULL) {
@@ -140,6 +136,7 @@ td_t find_hash_node(char *path, int len) {
 		}
 		if(thash->next == hash_node[id])
 			break;
+		thash = thash->next;
 	}
 	return fd;
 }
@@ -163,17 +160,21 @@ int delete_hash_node(td_t fd, char *path, int len) {
 		if(thash->fd == fd) {
 			if(thash->next == thash) {
 				hash_node[id] = NULL;
+				free(thash->path);
 				free(thash);
 			}
 			else {
 				thash->pre->next=thash->next;
 				thash->next->pre=thash->pre;
+				free(thash->path);
 				free(thash);
 			}
 			ret=0;
+			break;
 		}
 		if(thash->next == hash_node[id])
 			break;
+		thash = thash->next;
 	}
 	return ret;
 }
@@ -193,7 +194,7 @@ struct ComFile {
 	char *aBuffer;		/* Pointer to malloc'd buffer */
 	int nBuffer;		/* Valid bytes of data in zBuffer */
 	sqlite3_int64 iBufferOfst;	/* Offset in file of zBuffer[0] */
-	//sqlite3_int64 file_size;	/* Size of file */
+	char *path;		/* the path of file */
 };
 
 
@@ -221,9 +222,17 @@ static int comDirectWrite(
 		rc = SQLITE_IOERR_WRITE;
 	}
 	if(rc == SQLITE_OK) {
-		rwrite = twrite_pack(cos_spd_id(), p->fd, (char *)zBuf, iAmt);	//cos_spd_id() might be changed to p->pid
-		if( rwrite == -1 ){
-			rc = SQLITE_IOERR_WRITE;
+		while(1) {
+			rwrite = twrite_pack(cos_spd_id(), p->fd, (char *)zBuf, iAmt);	//cos_spd_id() might be changed to p->pid
+			if( rwrite == -1 ){
+				rc = SQLITE_IOERR_WRITE;
+				break;
+			}
+			printv("rwrite: %d\n", rwrite);
+			if(rwrite==iAmt)
+				break;
+			iAmt-=rwrite;
+			zBuf+=iAmt;
 		}
 	}
 	printv("rc: %d\n", rc);
@@ -241,7 +250,7 @@ static int comFlushBuffer(ComFile *p){
 	if( p->nBuffer ){
 		rc = comDirectWrite(p, p->aBuffer, p->nBuffer, p->iBufferOfst);
 		/* update ComFile struct */
-		p->iBufferOfst += p->nBuffer;
+		//p->iBufferOfst += p->nBuffer;
  		p->nBuffer = 0;
 	}
 	printv("rc: %d\n", rc);
@@ -252,119 +261,16 @@ static int comFlushBuffer(ComFile *p){
 ** Close a file.
 */
 static int comClose(sqlite3_file *pFile){
-	prints("comClose\n");
+	printv("comClose\n");
 	int rc;
 	ComFile *p = (ComFile*)pFile;
 	rc = comFlushBuffer(p);
+	//tmerge(cos_spd_id(), p->fd, td_root, p->path, strlen(p->path));
 	/* update ComFile struct */
 	sqlite3_free(p->aBuffer);
-	p->iBufferOfst += 0;
-	p->nBuffer = 0;
-	trelease(cos_spd_id(), p->fd);
 	printv("rc: %d\n", rc);
+	rc = SQLITE_OK;
 	return rc;
-}
-
-/*
-** Read data from a file.
-*/
-static int comRead(
-  sqlite3_file *pFile, 
-  void *zBuf, 
-  int iAmt, 
-  sqlite_int64 iOfst
-){
-	prints("comRead\n");
-	char bfst[21];		/* Return the string of iOfst */
-	ComFile *p = (ComFile*)pFile;
-	off_t rfst;                     /* Return value from lseek() */
-	int rread;                      /* Return value from read() */
-	int rc;                         /* Return code from comFlushBuffer() */
-	char flags[10]="offset";	
-
-
-	sprintf(bfst, "%lld", iOfst);	/* transfor iOfst to char[] */
-
-	/* Flush any data in the write buffer to disk in case this operation
-	** is trying to read data the file-region currently cached in the buffer.
-	** It would be possible to detect this case and possibly save an 
-	** unnecessary write here, but in practice SQLite will rarely read from
-	** a journal file when there is data cached in the write-buffer.
-	*/
-	rc = comFlushBuffer(p);
-	printv("rc: %d\n", rc);
-	if( rc!=SQLITE_OK )
-		return rc;
-
-	printv("fd: %d\n", p->fd);
-
-	rfst = twmeta(p->pid, p->fd, flags, strlen(flags), bfst, strlen(bfst));
-	printv("rfst: %d\n", rfst);
-	if( rfst == -1 )
-		return SQLITE_IOERR_READ;
-	rread = tread_pack(cos_spd_id(), p->fd, (char *)zBuf, iAmt);
-	printv("rread: %d\n", rread);
-	if( rread != -1 )
-		return SQLITE_OK;
-	else
-		return SQLITE_IOERR_READ;
-}
-
-/*
-** Write data to a crash-file.
-*/
-static int comWrite(
-  sqlite3_file *pFile, 
-  const void *zBuf, 
-  int iAmt, 
-  sqlite_int64 iOfst
-){
-	prints("comWrite\n");
-	ComFile *p = (ComFile*)pFile;
-	int rc;
-
-	if( p->aBuffer ){
-		char *z = (char *)zBuf;		/* Pointer to remaining data to write */
-		int n = iAmt;			/* Number of bytes at z */
-		sqlite3_int64 i = iOfst;	/* File offset to write to */
-
-		while( n>0 ){
-			int nCopy;		/* Number of bytes to copy into buffer */
-
-			/* If the buffer is full, or if this data is not being written directly
-			** following the data already buffered, flush the buffer. Flushing
-			** the buffer is a no-op if it is empty.  
-			*/
-			if( p->nBuffer==SQLITE_COMVFS_BUFFERSZ || p->iBufferOfst+p->nBuffer!=i ){
-				rc = comFlushBuffer(p);
-				printv("rc: %d\n", rc);
-				if( rc!=SQLITE_OK ){
-					return rc;
-				}
-			}
-			assert( p->nBuffer==0 || p->iBufferOfst+p->nBuffer==i );
-			p->iBufferOfst = i - p->nBuffer;
-
-			/* Copy as much data as possible into the buffer. */
-			nCopy = SQLITE_COMVFS_BUFFERSZ - p->nBuffer;
-			if( nCopy>n ){
-				nCopy = n;
-			}
-			memcpy(&p->aBuffer[p->nBuffer], z, nCopy);
-			p->nBuffer += nCopy;
-		
-			n -= nCopy;
-			i += nCopy;
-			z += nCopy;
-		}
-	}
-	else{
-    		rc = comDirectWrite(p, zBuf, iAmt, iOfst);
-		printv("rc: %d\n", rc);
-		return rc;
-	}
-	prints("rc: 0\n");
-	return SQLITE_OK;
 }
 
 /*
@@ -401,8 +307,9 @@ static int comSync(sqlite3_file *pFile, int flags){
 ** Write the size of the file in bytes to *pSize.
 */
 static int comFileSize(sqlite3_file *pFile, sqlite_int64 *pSize){
-	prints("comFileSize\n");
-	ComFile *p = (ComFile*)pFile;
+	printv("comFileSize\n");
+	ComFile *p = (ComFile*)pFile;	
+	sqlite_int64 size;
 	int rc;				/* Return code from tremta() */
 	int i;				/* Iterator variable */
 	/* Flush the contents of the buffer to disk. As with the flush in the
@@ -411,16 +318,138 @@ static int comFileSize(sqlite3_file *pFile, sqlite_int64 *pSize){
 	** not worth the trouble.
 	*/
 	rc = comFlushBuffer(p);
-	printv("rc: %d\n", rc);
+	printv("rc: %lld\n", rc);
 	if( rc!=SQLITE_OK ){
 		return rc;
 	}
-	rc = tsize(cos_spd_id(), p->fd);
-	if( rc==-1) {
+	size = tsize(cos_spd_id(), p->fd);
+	if( size<0 ) {
 		return SQLITE_IOERR;
 	}
-	*pSize = rc;
-	printv("file_size: %d\n", rc);
+	*pSize = size;
+	printv("file_size: %lld\n", size);
+	return SQLITE_OK;
+}
+
+/*
+** Read data from a file.
+*/
+static int comRead(
+  sqlite3_file *pFile, 
+  void *zBuf, 
+  int iAmt, 
+  sqlite_int64 iOfst
+){
+	printv("comRead\n");
+	printv("iOfst: %lld iAmt: %d\n", iOfst, iAmt);
+	char bfst[21];		/* Return the string of iOfst */
+	ComFile *p = (ComFile*)pFile;
+	off_t rfst;                     /* Return value from lseek() */
+	int rread;                      /* Return value from read() */
+	int rc;                         /* Return code from comFlushBuffer() */
+	char flags[10]="offset";	
+	sqlite_int64 file_size;			/* return value from tsize() */
+
+	sprintf(bfst, "%lld", iOfst);	/* transfor iOfst to char[] */
+
+	/* Flush any data in the write buffer to disk in case this operation
+	** is trying to read data the file-region currently cached in the buffer.
+	** It would be possible to detect this case and possibly save an 
+	** unnecessary write here, but in practice SQLite will rarely read from
+	** a journal file when there is data cached in the write-buffer.
+	*/
+	rc = comFlushBuffer(p);
+	printv("rc: %d\n", rc);
+	if( rc!=SQLITE_OK )
+		return rc;	
+
+	rfst = twmeta(p->pid, p->fd, flags, strlen(flags), bfst, strlen(bfst));
+	printv("rfst: %d\n", rfst);
+	if( rfst == -1 )
+		return SQLITE_IOERR_READ;
+
+	file_size = tsize(cos_spd_id(), p->fd);
+
+		printv("File Size: %lld\n", file_size);
+
+	if(file_size<iOfst) {
+		rread = 0;
+	}
+	else
+		rread = tread_pack(cos_spd_id(), p->fd, (char *)zBuf, iAmt);
+
+	int i;
+
+	printv("Read buf: nRead: %d\n", rread);
+	printv("\n");
+
+	printv("rread: %d\n", rread);
+	if( rread <0 )
+		return SQLITE_IOERR_READ;
+	else if(rread < iAmt)
+		return SQLITE_IOERR_SHORT_READ;
+	else if(rread == iAmt)
+		return SQLITE_OK;
+	else return SQLITE_IOERR_READ;
+}
+
+/*
+** Write data to a crash-file.
+*/
+static int comWrite(
+  sqlite3_file *pFile, 
+  const void *zBuf, 
+  int iAmt, 
+  sqlite_int64 iOfst
+){
+	printv("comWrite\n");
+	printv("iOfst: %lld iAmt: %d\n", iOfst, iAmt);
+	printv("pFile: %d\n", pFile);
+	ComFile *p = (ComFile*)pFile;
+	int rc;
+	int i;
+	if( p->aBuffer ){
+		char *z = (char *)zBuf;		/* Pointer to remaining data to write */
+		int n = iAmt;			/* Number of bytes at z */
+		sqlite3_int64 i = iOfst;	/* File offset to write to */
+
+		while( n>0 ){
+			int nCopy;		/* Number of bytes to copy into buffer */
+
+			/* If the buffer is full, or if this data is not being written directly
+			** following the data already buffered, flush the buffer. Flushing
+			** the buffer is a no-op if it is empty.  
+			*/
+			if( p->nBuffer==SQLITE_COMVFS_BUFFERSZ || p->iBufferOfst+p->nBuffer!=i ){
+				rc = comFlushBuffer(p);
+				printv("rc: %d\n", rc);
+				if( rc!=SQLITE_OK ){
+					return rc;
+				}
+			}
+			printv("p->nBuffer: %d p->iBufferOfst: %d i: %d\n", p->nBuffer, p->iBufferOfst, i);
+			p->iBufferOfst = i - p->nBuffer;
+
+			/* Copy as much data as possible into the buffer. */
+			nCopy = SQLITE_COMVFS_BUFFERSZ - p->nBuffer;
+			if( nCopy>n ){
+				nCopy = n;
+			}
+			memcpy(&p->aBuffer[p->nBuffer], z, nCopy);
+			p->nBuffer += nCopy;
+		
+			n -= nCopy;
+			i += nCopy;
+			z += nCopy;
+		}
+	}
+	else{
+    		rc = comDirectWrite(p, zBuf, iAmt, iOfst);
+		printv("rc: %d\n", rc);
+		return rc;
+	}
+	//printv("file_size: %d\n", tsize(cos_spd_id(), p->fd));
+	prints("rc: 0\n");
 	return SQLITE_OK;
 }
 
@@ -482,7 +511,7 @@ static int comOpen(
   int flags,                      /* Input SQLITE_OPEN_XXX flags */
   int *pOutFlags                  /* Output SQLITE_OPEN_XXX flags (or NULL) */
 ){
-	prints("comOpen\n");
+	printv("comOpen\n");
   static const sqlite3_io_methods comio = {
     1,                            /* iVersion */
     comClose,                    /* xClose */
@@ -531,18 +560,23 @@ static int comOpen(
 		printv("rc: %d\n", SQLITE_CANTOPEN);
 		return SQLITE_CANTOPEN;
 	}
+	p->path = (char *)(malloc(strlen(zName)+1));
+	memcpy(p->path, zName, strlen(zName));
+	p->path[strlen(zName)]='\0';
 	p->evtid = evt;
 	p->fd = tsplit(p->pid, td_root, zName, strlen(zName), TOR_ALL, p->evtid);
+	printv("Open: %s\n", zName);
+	printv("pFile: %d\n", pFile);
+	printv("%s\n", zName);
 	add_hash_node(p->fd, zName, strlen(zName));
 	printv("fd: %d\n", p->fd);
-	if( p->fd == -1 ){
+	printv("size: %d\n", tsize(cos_spd_id(), p->fd));
+	if( p->fd < 0 ){
 		sqlite3_free(aBuf);
 		printv("rc: %d\n", SQLITE_CANTOPEN);
 		return SQLITE_CANTOPEN;
 	}
 	p->aBuffer = aBuf;
-	p->nBuffer = 0;
-	p->iBufferOfst = 0;
 
 	if( pOutFlags ){
 		*pOutFlags = flags;
@@ -558,43 +592,20 @@ static int comOpen(
 ** file has been synced to disk before returning.
 */
 static int comDelete(sqlite3_vfs *pVfs, const char *zPath, int dirSync){
-	prints("comDelete\n");
-	int rc=-1;                         /* Return code */
+	printv("comDelete\n");
+	int rc;                         /* Return code */
 	td_t fd = find_hash_node(zPath, strlen(zPath));
 	printv("fd: %d\n", fd);
+	printv("Delete: %s\n", zPath);
 	if(fd==-1)
 		return SQLITE_OK;
-	rc = tmerge(cos_spd_id(), fd, td_null, zPath, strlen(zPath));
-	if( (rc == -1) && (errno == ENOENT) ) {
-		printv("rc: %d\n", (rc==-1)&&(errno==ENOENT));
-		return SQLITE_OK;
-	}
+	trelease(cos_spd_id(), fd);
+	tmerge(cos_spd_id, fd, td_null, zPath, strlen(zPath));
 	delete_hash_node(fd, zPath, strlen(zPath));
 
 	//do not need dirSync, becasue the file is in cache, do not need to be synced
-	//if( rc==0 && dirSync ){
-	//	int dfd;                      /* File descriptor open on directory */
-	//	int i;                        /* Iterator variable */
-	//	char zDir[MAXPATHNAME+1];     /* Name of directory containing file zPath */
 
-		/* Figure out the directory name from the path of the file deleted. */
-	//	sqlite3_snprintf(MAXPATHNAME, zDir, "%s", zPath);
-	//	zDir[MAXPATHNAME] = '\0';
-	//	for(i=strlen(zDir); i>1 && zDir[i]!='/'; i--);
-	//	zDir[i] = '\0';
-
-    		/* Open a file-descriptor on the directory. Sync. Close. */
-    	//	dfd = open(zDir, O_RDONLY, 0);
-    	//	if( dfd<0 ) {
-	//		rc = -1;
-    	//	}
-	//	else {
-	//		rc = fsync(dfd);
-	//		close(dfd);
-	//	}
-	//}
-	printv("rc: %d\n", (rc==1) ? SQLITE_IOERR_DELETE: SQLITE_OK);
-  	return (rc==-1 ? SQLITE_IOERR_DELETE : SQLITE_OK);
+  	return SQLITE_OK;
 }
 
 #ifndef F_OK
@@ -621,6 +632,7 @@ static int comAccess(
   int *pResOut
 ){
 	prints("comAccess\n");
+	printv("%s\n", zPath);
 	int rc;				/* access() return code */
 	int eAccess = F_OK;		/* Second argument to access() */
 
@@ -635,7 +647,11 @@ static int comAccess(
 		eAccess = R_OK;
 
 	rc = access(zPath, eAccess);*/
-	*pResOut = 1;
+
+	td_t t = find_hash_node(zPath, strlen(zPath));
+	rc = t<0?0:1;
+	*pResOut = rc;
+	printv("pResOut: %d\n", *pResOut);
 	printv("rc: %d\n", SQLITE_OK);
 	return SQLITE_OK;
 }
@@ -789,7 +805,7 @@ int sqlite3_os_end(void){
 int callback(void * a, int count, char ** value, char **name) {
 	int i;
 	for(i=0; i<count; i++) {
-		printf("%s %s\n", value[i], name[i]);
+		printc("%s %s\n", value[i], name[i]);
 	}
 	return 0;
 }
@@ -811,35 +827,35 @@ void cos_init(void) {
 		sqlite3_close(db);
 		return ;
 	}
-	printc("Fuck!!!\nHave opened sqlite file in composite successfully!!!\n");
+	printc("Have opened sqlite file in composite successfully!!!\n");
 	sql = "create table table_1( ID integer primary key autoincrement, Username nvarchar(32), PassWord nvarchar(32))";
 	result = sqlite3_exec( db, sql, 0, 0, &errmsg);
 	if(result != SQLITE_OK ) {
 		printc("Fail to create table_1: %d mesg:%s\n", result, errmsg);
 		sqlite3_free(errmsg);
 	}
-	free(sql);
+	printc("Have created table_1!!!\n");
 	sql="insert into table_1 values(1, 'wzh1', 'wzh1')";
 	result = sqlite3_exec( db, sql, 0, 0, &errmsg );
 	if(result != SQLITE_OK ) {
 		printc("Fail to insert user wzh1: %d mesg:%s\n", result, errmsg);
 		sqlite3_free(errmsg);
 	}
-	free(sql);
+	printc("Have run inserted command!!!\n");
 	sql="insert into table_1 values(2, 'wzh2', 'wzh2')";
 	result = sqlite3_exec( db, sql, 0, 0, &errmsg );
 	if(result != SQLITE_OK ) {
 		printc("Fail to inster user wzh2: %d mesg:%s\n", result, errmsg);
 		sqlite3_free(errmsg);
 	}
-	free(sql);
+	printc("Have run inserted command!!!\n");
 	sql = "select * from table_1";
 	result = sqlite3_exec( db, sql, callback, NULL, &errmsg );
 	if(result != SQLITE_OK ) {
 		printc("Fail to select: %d mesg:%s\n", result, errmsg);
 		sqlite3_free(errmsg);
 	}
-	free(sql);
+	printc("Have print the message from select command\n");
 	sqlite3_close(db);
 	printc("Have closed sqlite3 file in composite successfully!!!\n");
 	return;

@@ -179,7 +179,6 @@ twrite(spdid_t spdid, td_t td, int cbid, int sz)
 	} else {
 		char *new;
 		int new_sz;
-
 		new_sz = fso->allocated == 0 ? MIN_DATA_SZ : fso->allocated * 2;
 		new    = malloc(new_sz);
 		if (!new) ERR_THROW(-ENOMEM, done);
