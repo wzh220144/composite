@@ -3,6 +3,7 @@
 #include <time.h>
 #include <timed_blk.h>
 #include <stdio.h>
+#include <sqlite3.h>
 void cos_init(void *args) {
 	char a[20];
 	sprintf(a, "%d", 12345);
