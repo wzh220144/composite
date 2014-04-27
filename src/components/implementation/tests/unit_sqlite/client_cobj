@@ -1,0 +1,6 @@
+00000000 T callback
+00000050 T cos_init
+         U printc
+         U sqlite3_close
+         U sqlite3_errmsg
+         U sqlite3_open
