@@ -40,17 +40,6 @@
 #include <timed_blk.h>
 #include <evt.h>
 #include <stdlib.h>
-#include <sqlite.h>
-#include <sqlite3.h>
-
-//#define VERBOSE 1
-#ifdef VERBOSE
-#define printv(fmt,...) printc(fmt, ##__VA_ARGS__)
-#define prints(fmt) printc(fmt)
-#else
-#define printv(fmt,...)
-#define prints(fmt)
-#endif
 
 /*
 ** Size of the write buffer used by journal files in bytes.
@@ -64,7 +53,34 @@
 */
 #define MAXPATHNAME 512
 
-#define DEF_HASH_NUM 41		//the size of hash_node
+#define DEF_HASH_NUM 41         //the size of hash_node
+
+/*
+** When using this VFS, the sqlite3_file* handles that SQLite uses are
+** actually pointers to instances of type ComFile.
+*/
+
+typedef struct ComFile ComFile;
+struct ComFile {
+        sqlite3_file base;      /* Base class. Must be first. */
+        spdid_t pid;            /* spd id */
+        td_t fd;                /* Usually it is file descriptor, but in 
+                                composite, it is torrent id, which is like 
+                                socket id*/
+        long evtid;             /* event id */
+        char *aBuffer;          /* Pointer to malloc'd buffer */
+        int nBuffer;            /* Valid bytes of data in zBuffer */
+        sqlite3_int64 iBufferOfst;      /* Offset in file of zBuffer[0] */
+        char *path;             /* the path of file */
+};
+
+typedef struct hash hash;
+struct hash {
+        hash *pre;
+        hash *next;
+        td_t fd;
+        char *path;
+};
 
 hash *hash_node[DEF_HASH_NUM];
 
@@ -174,23 +190,6 @@ int delete_hash_node(td_t fd, char *path, int len) {
 	return ret;
 }
 
-/*
-** When using this VFS, the sqlite3_file* handles that SQLite uses are
-** actually pointers to instances of type ComFile.
-*/
-typedef struct ComFile ComFile;
-struct ComFile {
-	sqlite3_file base;	/* Base class. Must be first. */
-	spdid_t pid;		/* spd id */
-	td_t fd;		/* Usually it is file descriptor, but in 
-				composite, it is torrent id, which is like 
-				socket id*/
-	long evtid;		/* event id */
-	char *aBuffer;		/* Pointer to malloc'd buffer */
-	int nBuffer;		/* Valid bytes of data in zBuffer */
-	sqlite3_int64 iBufferOfst;	/* Offset in file of zBuffer[0] */
-	char *path;		/* the path of file */
-};
 
 
 /*
@@ -752,7 +751,7 @@ static int comCurrentTime(sqlite3_vfs *pVfs, double *pTime){
 **
 **   sqlite3_vfs_register(sqlite3_comvfs(), 0);
 */
-sqlite3_vfs *sqlite3_comvfs(void){
+sqlite3_vfs *sqlite3_comvfs(){
 	prints("sqlite3_comvfs\n");
   static sqlite3_vfs comvfs = {
     1,				/* iVersion */
@@ -776,7 +775,28 @@ sqlite3_vfs *sqlite3_comvfs(void){
   return &comvfs;
 }
 
-void sqlite_init(void) {
+int sqlite3_os_init(void){
+        prints("sqlite3_os_init\n");
+        sqlite3_vfs_register(sqlite3_comvfs(), 0);
+        printv("rc: %d\n", SQLITE_OK);
+        return SQLITE_OK;
+}
+
+/*
+** Shutdown the operating system interface.
+**
+** May need to do some clean up.
+**
+** This routine is a no-op for composite
+*/
+int sqlite3_os_end(void){
+        prints("sqlite3_os_end\n");
+        printv("rc: %d\n", SQLITE_OK);
+        return SQLITE_OK;
+}
+
+
+void cos_init() {
 	int i;
 	for(i=0; i<DEF_HASH_NUM; i++)
 		hash_node[i]=NULL;
