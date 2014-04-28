@@ -53,33 +53,13 @@
 */
 #define MAXPATHNAME 512
 
-#define DEF_HASH_NUM 41         //the size of hash_node
-
-/*
-** When using this VFS, the sqlite3_file* handles that SQLite uses are
-** actually pointers to instances of type ComFile.
-*/
-
-typedef struct ComFile ComFile;
-struct ComFile {
-        sqlite3_file base;      /* Base class. Must be first. */
-        spdid_t pid;            /* spd id */
-        td_t fd;                /* Usually it is file descriptor, but in 
-                                composite, it is torrent id, which is like 
-                                socket id*/
-        long evtid;             /* event id */
-        char *aBuffer;          /* Pointer to malloc'd buffer */
-        int nBuffer;            /* Valid bytes of data in zBuffer */
-        sqlite3_int64 iBufferOfst;      /* Offset in file of zBuffer[0] */
-        char *path;             /* the path of file */
-};
-
+#define DEF_HASH_NUM 41		//the size of hash_node
 typedef struct hash hash;
 struct hash {
-        hash *pre;
-        hash *next;
-        td_t fd;
-        char *path;
+	hash *pre;
+	hash *next;
+	td_t fd;
+	char *path;
 };
 
 hash *hash_node[DEF_HASH_NUM];
@@ -190,6 +170,23 @@ int delete_hash_node(td_t fd, char *path, int len) {
 	return ret;
 }
 
+/*
+** When using this VFS, the sqlite3_file* handles that SQLite uses are
+** actually pointers to instances of type ComFile.
+*/
+typedef struct ComFile ComFile;
+struct ComFile {
+	sqlite3_file base;	/* Base class. Must be first. */
+	spdid_t pid;		/* spd id */
+	td_t fd;		/* Usually it is file descriptor, but in 
+				composite, it is torrent id, which is like 
+				socket id*/
+	long evtid;		/* event id */
+	char *aBuffer;		/* Pointer to malloc'd buffer */
+	int nBuffer;		/* Valid bytes of data in zBuffer */
+	sqlite3_int64 iBufferOfst;	/* Offset in file of zBuffer[0] */
+	char *path;		/* the path of file */
+};
 
 
 /*
@@ -261,7 +258,7 @@ static int comClose(sqlite3_file *pFile){
 	rc = comFlushBuffer(p);
 	//tmerge(cos_spd_id(), p->fd, td_root, p->path, strlen(p->path));
 	/* update ComFile struct */
-	free(p->aBuffer);
+	sqlite3_free(p->aBuffer);
 	printv("rc: %d\n", rc);
 	rc = SQLITE_OK;
 	return rc;
@@ -532,7 +529,7 @@ static int comOpen(
 	}
 
 	if( flags&SQLITE_OPEN_MAIN_JOURNAL ){
-		aBuf = (char *)malloc(SQLITE_COMVFS_BUFFERSZ);
+		aBuf = (char *)sqlite3_malloc(SQLITE_COMVFS_BUFFERSZ);
 		if( !aBuf ){
 			printv("rc: %d\n", SQLITE_NOMEM);
 			return SQLITE_NOMEM;
@@ -566,7 +563,7 @@ static int comOpen(
 	printv("fd: %d\n", p->fd);
 	printv("size: %d\n", tsize(cos_spd_id(), p->fd));
 	if( p->fd < 0 ){
-		free(aBuf);
+		sqlite3_free(aBuf);
 		printv("rc: %d\n", SQLITE_CANTOPEN);
 		return SQLITE_CANTOPEN;
 	}
@@ -671,7 +668,7 @@ static int comFullPathname(
 		return SQLITE_IOERR;
 	}
 
-	sprintf(nPathOut, zPathOut, "%s", zPath);
+	sqlite3_snprintf(nPathOut, zPathOut, "%s", zPath);
 	zPathOut[nPathOut-1] = '\0';
 	printv("rc: %d\n", SQLITE_OK);
 	return SQLITE_OK;
@@ -695,7 +692,7 @@ static void *comDlOpen(sqlite3_vfs *pVfs, const char *zPath) {
 }
 static void comDlError(sqlite3_vfs *pVfs, int nByte, char *zErrMsg){
 	prints("comDlError\n");
-	snprintf(nByte, zErrMsg, "Loadable extensions are not supported");
+	sqlite3_snprintf(nByte, zErrMsg, "Loadable extensions are not supported");
 	zErrMsg[nByte-1] = '\0';
 }
 static void (*comDlSym(sqlite3_vfs *pVfs, void *pH, const char *z))(void){
@@ -751,7 +748,7 @@ static int comCurrentTime(sqlite3_vfs *pVfs, double *pTime){
 **
 **   sqlite3_vfs_register(sqlite3_comvfs(), 0);
 */
-sqlite3_vfs *sqlite3_comvfs(){
+sqlite3_vfs *sqlite3_comvfs(void){
 	prints("sqlite3_comvfs\n");
   static sqlite3_vfs comvfs = {
     1,				/* iVersion */
@@ -775,11 +772,12 @@ sqlite3_vfs *sqlite3_comvfs(){
   return &comvfs;
 }
 
+
 int sqlite3_os_init(void){
-        prints("sqlite3_os_init\n");
-        sqlite3_vfs_register(sqlite3_comvfs(), 0);
-        printv("rc: %d\n", SQLITE_OK);
-        return SQLITE_OK;
+	prints("sqlite3_os_init\n");
+	sqlite3_vfs_register(sqlite3_comvfs(), 0);
+	printv("rc: %d\n", SQLITE_OK);
+	return SQLITE_OK; 
 }
 
 /*
@@ -790,60 +788,60 @@ int sqlite3_os_init(void){
 ** This routine is a no-op for composite
 */
 int sqlite3_os_end(void){
-        prints("sqlite3_os_end\n");
-        printv("rc: %d\n", SQLITE_OK);
-        return SQLITE_OK;
+	prints("sqlite3_os_end\n");
+	printv("rc: %d\n", SQLITE_OK);
+	return SQLITE_OK; 
 }
 
+/*****************the function exposed as interface**********************/
+char *pzErrmsg;
 
-void cos_init() {
+int sqlite_open(const char *filename, sqlite3 **ppDb) {	//rewrite sqlite3_open
+	sqlite3_open(filename, ppDb);
+}
+
+int sqlite_close(sqlite3 *db) {		//rewrite sqlite3_close
+	sqlite3_close(db);
+}
+
+void sqlite_errmsg(sqlite3 *db) {	//rewrite sqlite3_errmsg
+	printc("%s\n", sqlite3_errmsg(db));
+}
+
+int sqlite_exec(	//rewrite sqlite3_exec
+ sqlite3 *db,
+ const char *zSql,
+ sqlite3_callback xCallback,
+ void *pArg
+) {
+	if(pzErrmsg != NULL) {
+		sqlite_free_cur_errmsg();
+	}
+	return sqlite3_exec(db, zSql, xCallback, pArg, &pzErrmsg);
+}
+
+void sqlite_free_cur_errmsg() {	//server the errmsg for sqlite_exec
+	if(pzErrmsg!=NULL)
+		sqlite3_free(pzErrmsg);
+	pzErrmsg = NULL;
+}
+
+void sqlite_cur_errmsg() {	//server the errmsg for sqlite_exec
+	if(pzErrmsg!=NULL) {
+		printc("%s\n", pzErrmsg);
+	}
+	else {
+		printc("No error massage!\n");
+	}	
+}
+
+void cos_init(void) {
+	
 	int i;
 	for(i=0; i<DEF_HASH_NUM; i++)
 		hash_node[i]=NULL;
-	prints("sqlite tests\n");
-	sqlite3 *db = NULL;
-	char *sql=NULL;
-	int rc = sqlite3_open("test.db", &db);
-	char *errmsg=0;
-	char *output;
-	int result;
-	if(rc) {
-		printc("Cannot open database: %s\n", sqlite3_errmsg(db));
-		sqlite3_close(db);
-		return ;
-	}
-	printc("Have opened sqlite file in composite successfully!!!\n");
-	/*sql = "create table table_1( ID integer primary key autoincrement, Username nvarchar(32), PassWord nvarchar(32))";
-	result = sqlite3_exec( db, sql, 0, 0, &errmsg);
-	if(result != SQLITE_OK ) {
-		printc("Fail to create table_1: %d mesg:%s\n", result, errmsg);
-		sqlite3_free(errmsg);
-	}
-	printc("Have created table_1!!!\n");
-	sql="insert into table_1 values(1, 'wzh1', 'wzh1')";
-	result = sqlite3_exec( db, sql, 0, 0, &errmsg );
-	if(result != SQLITE_OK ) {
-		printc("Fail to insert user wzh1: %d mesg:%s\n", result, errmsg);
-		sqlite3_free(errmsg);
-	}
-	printc("Have run inserted command!!!\n");
-	sql="insert into table_1 values(2, 'wzh2', 'wzh2')";
-	result = sqlite3_exec( db, sql, 0, 0, &errmsg );
-	if(result != SQLITE_OK ) {
-		printc("Fail to inster user wzh2: %d mesg:%s\n", result, errmsg);
-		sqlite3_free(errmsg);
-	}
-	printc("Have run inserted command!!!\n");
-	sql = "select * from table_1";
-	result = sqlite3_exec( db, sql, callback, NULL, &errmsg );
-	if(result != SQLITE_OK ) {
-		printc("Fail to select: %d mesg:%s\n", result, errmsg);
-		sqlite3_free(errmsg);
-	}
-	printc("Have print the message from select command\n");*/
-	sqlite3_close(db);
-	printc("Have closed sqlite3 file in composite successfully!!!\n");
-	return ;
+	pzErrmsg = NULL;
+
 }
 
 #endif

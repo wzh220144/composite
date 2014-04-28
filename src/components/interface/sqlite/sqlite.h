@@ -13,9 +13,18 @@
 #define prints(fmt)
 #endif
 
-int sqlite3_open(const char *filename, sqlite3 **ppDb);
-int sqlite3_close(sqlite3*);
-const char *sqlite3_errmsg(sqlite3*);
+int sqlite_open(const char *filename, sqlite3 **ppDb);
+int sqlite_close(sqlite3 *db);
+void sqlite_errmsg(sqlite3 *db);
+int sqlite_exec(
+ sqlite3 *db,
+ const char *zSql,
+ sqlite3_callback xCallback,
+ void *pArg
+);
+void sqlite_free_cur_errmsg();
+void sqlite_cur_errmsg();
+
 /*void sqlite_init();
 sqlite3_vfs *sqlite3_comvfs();
 static int comDirectWrite(ComFile *p, const void *zBuf, int iAmt, sqlite_int64 iOfst);

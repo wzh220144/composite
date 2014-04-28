@@ -8,9 +8,12 @@
 #include <cos_asm_server_stub.h>
 
 .text
-cos_asm_server_stub(sqlite3_close)
-cos_asm_server_stub(sqlite3_open)	
-cos_asm_server_stub(sqlite3_errmsg)
+cos_asm_server_stub(sqlite_close)
+cos_asm_server_stub(sqlite_open)	
+cos_asm_server_stub(sqlite_errmsg)
+cos_asm_server_stub(sqlite_exec)
+cos_asm_server_stub(sqlite_cur_errmsg)
+cos_asm_server_stub(sqlite_free_cur_errmsg)
 #cos_asm_server_stub(sqlite_init)
 #cos_asm_server_stub(sqlite3_comvfs)
 #cos_asm_server_stub(comDirectWrite)
