@@ -19,14 +19,36 @@ void sqlite_errmsg(sqlite3 *db);
 int sqlite_exec(
  sqlite3 *db,
  const char *zSql,
- sqlite3_callback xCallback,
  void *pArg
 );
 void sqlite_free_cur_errmsg();
 void sqlite_cur_errmsg();
-
-/*void sqlite_init();
-sqlite3_vfs *sqlite3_comvfs();
+int sqlite_prepare_v2(
+ sqlite3 *db,
+ const void *zSql,
+ sqlite3_stmt **ppStmt,
+ const void **pzTail
+);
+int sqlite_bind_text(
+  sqlite3_stmt *pStmt,
+  int i,
+  const char *zData,
+  void (*xDel)(void*)
+);
+int sqlite_bind_int(sqlite3_stmt *p, int i, int iValue);
+int sqlite_step(sqlite3_stmt *pStmt);
+int sqlite_reset(sqlite3_stmt *pStmt);
+int sqlite_finalize(sqlite3_stmt *pStmt);
+int sqlite_get_table(
+  const char *zSql,
+  int *pnRow,
+  int *pnColumn
+);
+void sqlite_cur_db(sqlite3 *db);
+void sqlite_clear_cur_db();
+void sqlite_get_cur_result(int id);
+void sqlite_clear_cur_result();
+/*
 static int comDirectWrite(ComFile *p, const void *zBuf, int iAmt, sqlite_int64 iOfst);
 static int comFlushBuffer(ComFile *p);
 static int comClose(sqlite3_file *pFile);

@@ -794,7 +794,20 @@ int sqlite3_os_end(void){
 }
 
 /*****************the function exposed as interface**********************/
-char *pzErrmsg;
+char *pzErrmsg;		//use for store error message
+sqlite3 *curDb;		//use for store db
+char **pazResult;	//use for store the pointer to the result
+int Row, Column;	//use for store the row and column for the result
+int nResult;		//use ofr sotre the count of the result
+
+int callback(void * a, int count, char ** value, char **name) { //callback function, used for ouput values in table
+        int i;
+        for(i=0; i<count; i++) {
+                printc("%s %s\n", value[i], name[i]);
+        }
+        return 0;
+}
+
 
 int sqlite_open(const char *filename, sqlite3 **ppDb) {	//rewrite sqlite3_open
 	sqlite3_open(filename, ppDb);
@@ -811,22 +824,21 @@ void sqlite_errmsg(sqlite3 *db) {	//rewrite sqlite3_errmsg
 int sqlite_exec(	//rewrite sqlite3_exec
  sqlite3 *db,
  const char *zSql,
- sqlite3_callback xCallback,
  void *pArg
 ) {
 	if(pzErrmsg != NULL) {
 		sqlite_free_cur_errmsg();
 	}
-	return sqlite3_exec(db, zSql, xCallback, pArg, &pzErrmsg);
+	return sqlite3_exec(db, zSql, callback, pArg, &pzErrmsg);
 }
 
-void sqlite_free_cur_errmsg() {	//server the errmsg for sqlite_exec
+void sqlite_free_cur_errmsg() {	//server the errmsg
 	if(pzErrmsg!=NULL)
 		sqlite3_free(pzErrmsg);
 	pzErrmsg = NULL;
 }
 
-void sqlite_cur_errmsg() {	//server the errmsg for sqlite_exec
+void sqlite_cur_errmsg() {	//server the errmsg
 	if(pzErrmsg!=NULL) {
 		printc("%s\n", pzErrmsg);
 	}
@@ -835,13 +847,101 @@ void sqlite_cur_errmsg() {	//server the errmsg for sqlite_exec
 	}	
 }
 
+int sqlite_prepare_v2(		//rewrite sqlite3_perpare_v2
+ sqlite3 *db,
+ const void *zSql,
+ sqlite3_stmt **ppStmt,
+ const void **pzTail
+) {
+	return sqlite3_prepare_v2(db, zSql, -1, ppStmt, pzTail);
+}
+
+int sqlite_bind_text(		//rewrite sqlite3_bind_text
+  sqlite3_stmt *pStmt,
+  int i,
+  const char *zData,
+  void (*xDel)(void*)
+) {
+	return sqlite3_bind_text(pStmt, i, zData, -1, xDel);
+}
+
+int sqlite_bind_int(sqlite3_stmt *p, int i, int iValue) {	//rewrite sqlite3_bind_int
+	return sqlite3_bind_int(p, i, iValue);
+}
+
+int sqlite_step(sqlite3_stmt *pStmt) {		//rewrite sqlite3_step
+	return sqlite3_step(pStmt);
+}
+
+int sqlite_reset(sqlite3_stmt *pStmt) {		//rewrite sqlite3_reset
+	return sqlite3_reset(pStmt);
+}
+
+int sqlite_finalize(sqlite3_stmt *pStmt) {	//rewrite sqlite3_finalize
+	return sqlite3_finalize(pStmt);
+}
+
+int sqlite_get_table(		//rewrite sqlite3_get_table
+  const char *zSql,
+  int *pnRow,
+  int *pnColumn
+) {
+	if(curDb==NULL) {
+		printc("Do not use sqlite_cur_db to set current db.\n");
+		return SQLITE_ERROR;
+	}
+	if(pzErrmsg != NULL)
+		sqlite_free_cur_errmsg();
+	if(pazResult)
+		sqlite_clear_cur_result();
+	int result = sqlite3_get_table(curDb, zSql, &pazResult, &Row, &Column, &pzErrmsg);
+	*pnRow = Row;
+	*pnColumn = Column;
+	nResult = Row*Column+Column;
+	return result;
+}
+
+void sqlite_get_cur_result(int id) {
+	if(id<nResult && id >= 0) {
+		printf("%s", pazResult[id]);
+	}
+	else {
+		printc("The number of the result is wrong!\n");
+	}
+}
+
+void sqlite_cur_db(sqlite3 *db) {	//server the db
+	curDb = db;
+}
+
+void sqlite_clear_cur_db() {		//server the db
+	curDb = NULL;
+}
+
+void sqlite_clear_cur_result() {		//server the pazResult
+	int i;
+	if(pazResult != NULL) {
+		for(i = 0; i < Row; i++) {
+			free(pazResult);
+			pazResult[i] = NULL;
+		}
+	}
+	pazResult = NULL;
+}
+
+
+/***************************************************************/
+
 void cos_init(void) {
 	
 	int i;
 	for(i=0; i<DEF_HASH_NUM; i++)
 		hash_node[i]=NULL;
 	pzErrmsg = NULL;
-
+	curDb = NULL;
+	pazResult = NULL;
+	Row = 0;
+	Column = 0;
 }
 
 #endif
